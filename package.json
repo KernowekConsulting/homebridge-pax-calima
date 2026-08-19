@@ -1,7 +1,8 @@
 {
   "name": "homebridge-pax-calima",
-  "version": "1.0.10",
-  "description": "Homebridge plugin for Pax Calima and Vent-Axia Svara Bluetooth bathroom fans",
+  "displayName": "Vent-Axia Svara / Pax Calima",
+  "version": "2.4.5",
+  "description": "Bring your Pax Calima or Vent-Axia Svara bathroom fan into Apple Home via Bluetooth \u2014 live temperature and fan speed with Silent Hours scheduling and full automation support.",
   "main": "index.js",
   "keywords": [
     "homebridge-plugin",
@@ -16,7 +17,8 @@
     "bathroom"
   ],
   "engines": {
-    "homebridge": "^1.6.0 || ^2.0.0"
+    "homebridge": "^1.6.0 || ^2.0.0",
+    "node": ">=18.20.4"
   },
   "dependencies": {
     "@abandonware/noble": "1.9.2-26"

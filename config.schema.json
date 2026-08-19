@@ -8,10 +8,41 @@
       "name": {
         "title": "Platform Name",
         "type": "string",
-        "default": "Pax Calima / Vent-Axia Svara Fans"
+        "default": "Pax Calima / Vent-Axia Svara"
+      },
+      "silentHoursStart": {
+        "title": "Silent Hours — Start Time",
+        "type": "string",
+        "placeholder": "23:00",
+        "description": "When the fan stops boosting at night. Enter in 24-hour format, e.g. 23:00. Leave blank to disable the schedule."
+      },
+      "silentHoursEnd": {
+        "title": "Silent Hours — End Time",
+        "type": "string",
+        "placeholder": "07:00",
+        "description": "When the fan resumes boosting in the morning. Enter in 24-hour format, e.g. 07:00. Both start and end must be set for the schedule to activate."
+      },
+      "showSilentSwitch": {
+        "title": "Show Silent Hours Switch in Home",
+        "type": "boolean",
+        "default": false,
+        "description": "Adds a Silent Hours on/off switch to your accessory in the Home app. Useful for including in a Goodnight scene or automation. Good for shift workers or irregular schedules."
+      },
+      "showHumidity": {
+        "title": "Show Humidity Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "⚠️ The fan's humidity reading reflects its internal threshold state and updates infrequently — it is NOT a live sensor reading and is NOT suitable for Siri queries or real-time automations. Only enable if you understand and accept this limitation."
+      },
+      "showLight": {
+        "title": "Show Light Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "⚠️ The fan's light reading reflects its internal threshold state and updates infrequently — it is NOT a live lux reading. Confirmed via testing: the value remains static regardless of lighting conditions. Only enable if you understand this limitation."
       },
       "fans": {
-        "title": "Manually Configured Fans (optional — auto-discovery is recommended)",
+        "title": "Manually Configured Fans",
+        "description": "Optional. Leave empty for auto-discovery. Add entries here only to set a custom name or PIN per fan.",
         "type": "array",
         "items": {
           "type": "object",
@@ -24,17 +55,17 @@
             "mac": {
               "title": "MAC Address",
               "type": "string",
-              "pattern": "^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$",
-              "description": "Optional. Leave blank for auto-discovery."
+              "placeholder": "58:2b:db:xx:xx:xx",
+              "description": "MAC address of the fan — found in the official Pax or Vent-Axia app under About Device."
             },
             "pin": {
               "title": "PIN Code",
               "type": "string",
               "default": "012345",
-              "description": "Usually 012345. Change only if you set a custom PIN in the official app."
+              "description": "6-digit PIN. Only change if you set a custom PIN in the official app."
             }
           },
-          "required": ["name"]
+          "required": ["name", "mac"]
         }
       }
     }
@@ -42,13 +73,34 @@
   "layout": [
     {
       "type": "section",
-      "title": "General",
-      "items": ["name"]
+      "title": "Silent Hours",
+      "expandable": true,
+      "expanded": false,
+      "items": ["silentHoursStart", "silentHoursEnd", "showSilentSwitch"]
     },
     {
       "type": "section",
-      "title": "Fans",
-      "items": ["fans"]
+      "title": "Optional Sensors",
+      "expandable": true,
+      "expanded": false,
+      "items": ["showHumidity", "showLight"]
+    },
+    {
+      "type": "section",
+      "title": "Fans (optional — auto-discovery recommended)",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        {
+          "key": "fans",
+          "type": "array",
+          "items": [
+            "fans[].name",
+            "fans[].mac",
+            "fans[].pin"
+          ]
+        }
+      ]
     }
   ]
 }
