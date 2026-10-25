@@ -56,15 +56,19 @@ The optional Silent Hours switch enables or disables that saved schedule while p
 
 ## When a fan is unavailable
 
-Home reports a communication failure when authentication fails, readback cannot be confirmed, telemetry is stale or RPM is outside the accepted range. A failed command can still have reached the fan if its reply was lost; the next successful poll reconciles state. The plugin does not retry an uncertain control write automatically. A rejected PIN stops unattended authentication retries; correct the configuration and restart the child bridge, or use an explicit Home command to retry.
+Boost, Pause and speed requests remain pending through temporary Bluetooth failures. SvaraHome retries every ten seconds after a failed attempt until readback confirms the request or a newer manual command replaces it. Pending requests survive child-bridge restarts. To cancel a pending Boost, turn Boost off; to cancel a pending Pause, turn Pause off. A request may therefore run when the fan becomes reachable later.
 
-Check the fan's address and PIN securely in Plugin Config, Bluetooth range and adapter access, and whether another app is connected. The plugin never prints PINs or raw backend errors. After a timed-out connection, it blocks further sessions until disconnection is known; `BLE_RECOVERY_REQUIRED` may require restarting only the fan child bridge after checking the adapter.
+The tiles follow verified fan state, never the pending request. If a reply is lost after a write, a retry first checks whether the requested override is already running, avoiding repeated timer extensions. Siri or HomeKit can time out before recovery; an error from Siri does not cancel the pending request or prove the fan did not receive it. Homebridge logs identify pending requests.
+
+A missed background poll retains the last verified reading only within the existing 45-second freshness limit. Home reports a communication failure when authentication fails, a command fails, telemetry is stale or RPM is outside the accepted range. Rejected authentication, invalid data and unsupported operating modes stop command retries and need attention. A rejected PIN also stops unattended authentication retries; correct the configuration and restart the child bridge, then issue the request again.
+
+Check the fan's address and PIN securely in Plugin Config, Bluetooth range and adapter access, and whether another app is connected. The plugin never prints PINs or raw backend errors. After a timed-out disconnect, it retries disconnection before allowing another session to use the radio. It waits for scanning to stop before connecting. Persistent adapter failures may still require attention.
 
 ## What has been checked
 
-Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established timed Boost, timed zero-RPM Pause, expiry, early resume and speed changes. All tested settings were restored. The older fan did not confirm authentication, so its controls remain unverified.
+Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established timed Boost, timed zero-RPM Pause, expiry, early resume and speed changes. All tested settings were restored. Both Kitchen and the older Wetroom fan subsequently authenticated and provided telemetry after Wetroom's address and PIN were corrected. Wetroom control actions still require device-level validation.
 
-The 2.5.0-beta.1 implementation has automated protocol, queue and native Homebridge-service tests, including replay of recorded telemetry. It has not yet been deployed or tested end to end in Apple Home. See [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md).
+Version 2.5.0-beta.1 has been published and installed on the owner's Pi. This working branch adds recovery and pending-command fixes beyond that published package, with automated protocol, queue and native Homebridge-service tests. See [live diagnostic evidence](docs/BETA1-LIVE-DIAGNOSTIC.md), [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md). Brief successful sessions do not establish sustained Bluetooth reliability.
 
 Homebridge verification remains an aim. The SvaraHome logo is bundled for the icon request; Homebridge controls verified status and icon display. See [verification preparation](docs/VERIFICATION.md).
 

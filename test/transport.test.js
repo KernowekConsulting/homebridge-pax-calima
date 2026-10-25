@@ -55,3 +55,43 @@ test('shutdown while scanning cleans up and prevents authentication',async()=>{
   const job=t.run(mac,pin,async()=>{throw Error('must not run');});await new Promise(r=>setImmediate(r));t.close();
   await assert.rejects(job);assert.equal(r.writes.length,0);assert.equal(r.noble.listenerCount('discover'),0);
 });
+test('a timed-out disconnect is retried before another session can use the radio',async()=>{
+  const r=fakeRadio(),t=new Transport(r.noble,5);let attempts=0;
+  r.peripheral.disconnectAsync=async()=>{
+    attempts++;
+    if(attempts===1){r.peripheral.state='disconnecting';return new Promise(()=>{});}
+    r.peripheral.state='disconnected';
+  };
+  await t.run(mac,pin,async()=>{});
+  assert.equal(r.peripheral.state,'disconnecting');
+  await t.run(mac,pin,async()=>{});
+  assert.equal(attempts,3);assert.equal(r.peripheral.state,'disconnected');t.close();
+});
+test('an already disconnected peripheral is not disconnected again after a dropped session',async()=>{
+  const r=fakeRadio(),t=new Transport(r.noble,5);let disconnects=0;
+  r.peripheral.disconnectAsync=async()=>{disconnects++;r.peripheral.state='disconnecting';};
+  await assert.rejects(t.run(mac,pin,async()=>{
+    r.peripheral.state='disconnected';throw Error('link dropped');
+  }),/link dropped/);
+  assert.equal(disconnects,0);assert.equal(r.peripheral.state,'disconnected');t.close();
+});
+test('unsuccessful recovery never starts another connection or authenticates',async()=>{
+  const r=fakeRadio(),t=new Transport(r.noble,5);
+  t.peripheral=r.peripheral;r.peripheral.state='disconnecting';
+  r.peripheral.disconnectAsync=()=>new Promise(()=>{});
+  await assert.rejects(t.run(mac,pin,async()=>{}),/BLE_RECOVERY_REQUIRED/);
+  assert.equal(r.writes.length,0);assert.equal(r.events.includes('connect'),false);t.close();
+});
+test('connection waits for acknowledged scan stop',async()=>{
+  const r=fakeRadio(),t=new Transport(r.noble,50);let stopped=false;
+  r.noble.stopScanningAsync=async()=>{await new Promise(r=>setTimeout(r,5));stopped=true;};
+  const connect=r.peripheral.connectAsync.bind(r.peripheral);
+  r.peripheral.connectAsync=async()=>{assert.equal(stopped,true);await connect();};
+  await t.run(mac,pin,async()=>{});t.close();
+});
+test('unacknowledged scan stop cannot start a connection',async()=>{
+  const r=fakeRadio(),t=new Transport(r.noble,5);
+  r.noble.stopScanningAsync=()=>new Promise(()=>{});
+  await assert.rejects(t.run(mac,pin,async()=>{}),/SCAN_STOP_FAILED/);
+  assert.equal(r.events.includes('connect'),false);assert.equal(r.writes.length,0);t.close();
+});

@@ -28,6 +28,8 @@ const C=hap.Characteristic,S=hap.Service;
 
 test('native Home services expose working boost/pause with mutually exclusive readback',async t=>{
   const {r,h}=fixture(t);await h.poll();
+  assert.equal(h.boostService.getCharacteristic(C.ConfiguredName).value,'Boost');
+  assert.equal(h.pauseService.getCharacteristic(C.ConfiguredName).value,'Pause');
   assert.equal(await get(h.boostService,C.On),false);assert.equal(await get(h.pauseService,C.On),false);
   await set(h.boostService,C.On,true);
   assert.equal(await get(h.boostService,C.On),true);assert.equal(await get(h.pauseService,C.On),false);
@@ -78,6 +80,15 @@ test('invalid RPM and stale telemetry are communication faults, not plausible sp
   r.values.status.writeUInt16LE(1000,6);await h.poll();assert.equal(await get(h.fanService,C.RotationSpeed),40);
   h.last.at-=45001;await assert.rejects(get(h.fanService,C.Active));
 });
+test('a transient background failure retains only fresh verified state; commands and stale state fault',async t=>{
+  const {h,platform}=fixture(t);await h.poll();const run=platform.transport.run.bind(platform.transport);
+  platform.transport.run=async()=>{throw Error('radio dropped');};
+  await h.poll();assert.equal(await get(h.fanService,C.RotationSpeed),41);
+  await assert.rejects(set(h.boostService,C.On,true));await assert.rejects(get(h.fanService,C.RotationSpeed));
+  platform.transport.run=run;await h.poll();h.last.at-=45001;
+  platform.transport.run=async()=>{throw Error('radio dropped');};
+  await h.poll();await assert.rejects(get(h.fanService,C.RotationSpeed));
+});
 test('fresh mode gate refuses commands without writing mode or manual state',async t=>{
   const {r,h}=fixture(t);r.values.mode=Buffer.from([4]);
   await assert.rejects(set(h.pauseService,C.On,true));
@@ -126,10 +137,60 @@ test('launch handles only configured addresses and keeps cached identities',asyn
   r.noble.emit('error',Error('secret backend info'));assert.equal(p.handlers[0].fault,true);
   api.emit('shutdown');assert.equal(r.noble.listenerCount('stateChange'),0);assert.equal(r.noble.listenerCount('error'),0);
 });
-test('overlapping poll, boost and pause requests are all executed in order',async t=>{
-  const {r,h}=fixture(t);await Promise.all([h.poll(),h.manual('boost',true),h.manual('pause',true)]);
-  assert.deepEqual(r.writes.filter(w=>w.name==='manual').map(w=>w.value.readUInt16LE(1)),[2000,0]);
+test('a newer pause supersedes a queued boost before its write',async t=>{
+  const {r,h}=fixture(t);const results=await Promise.allSettled([h.poll(),h.manual('boost',true),h.manual('pause',true)]);
+  assert.equal(results[1].reason.code,'COMMAND_SUPERSEDED');assert.equal(results[2].status,'fulfilled');
+  assert.deepEqual(r.writes.filter(w=>w.name==='manual').map(w=>w.value.readUInt16LE(1)),[0]);
   assert.equal(await get(h.pauseService,C.On),true);assert.equal(await get(h.boostService,C.On),false);
+});
+test('failed boost stays pending until verified retry; Home never reports optimistic success',async t=>{
+  const {r,h,platform,a}=fixture(t);await h.poll();const run=platform.transport.run.bind(platform.transport);
+  platform.transport.run=async()=>{throw Error('temporarily unreachable');};
+  await assert.rejects(set(h.boostService,C.On,true));
+  assert.equal(h.intent.kind,'boost');assert.equal(a.context.pendingManual.kind,'boost');assert.ok(h.intentTimer);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,0);await assert.rejects(get(h.boostService,C.On));
+  platform.transport.run=run;await h.attemptIntent(h.intent);
+  assert.equal(await get(h.boostService,C.On),true);assert.equal(h.intent,null);assert.equal(a.context.pendingManual,undefined);
+});
+test('cancel replaces an unreachable pending boost; the older retry cannot turn it on later',async t=>{
+  const {r,h,platform}=fixture(t);const run=platform.transport.run.bind(platform.transport);
+  platform.transport.run=async()=>{throw Error('temporarily unreachable');};
+  await assert.rejects(h.manual('boost',true));const old=h.intent;
+  platform.transport.run=run;await h.manual('boost',false);await h.attemptIntent(old);
+  assert.equal(h.intent,null);assert.equal(await get(h.boostService,C.On),false);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,0);
+});
+test('lost write confirmation is recovered by readback without extending the native timer',async t=>{
+  const {r,h}=fixture(t);const char=r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.manual);
+  const read=char.readAsync;let n=0;char.readAsync=async()=>{if(++n===2)throw Error('reply lost');return read();};
+  await assert.rejects(h.manual('boost',true));assert.equal(h.intent.attempted,true);
+  r.values.manual.writeUInt16LE(581,3);char.readAsync=read;
+  await h.attemptIntent(h.intent);assert.equal(await get(h.boostService,C.On),true);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,1);assert.equal(r.values.manual.readUInt16LE(3),581);
+});
+test('a pending request survives child restart; rejected authentication stops it',async t=>{
+  const {r,h,a,platform}=fixture(t);const run=platform.transport.run.bind(platform.transport);
+  platform.transport.run=async()=>{throw Error('temporarily unreachable');};
+  await assert.rejects(h.manual('pause',true));h.close();platform.transport.run=run;
+  const restored=new FanAccessory(platform,homebridge,a,fan);t.after(()=>restored.close());
+  assert.equal(restored.intent.kind,'pause');await restored.attemptIntent(restored.intent);
+  assert.equal(await get(restored.pauseService,C.On),true);assert.equal(a.context.pendingManual,undefined);
+  r.values.confirmation=Buffer.from([0]);await assert.rejects(restored.manual('boost',true));
+  assert.equal(restored.intent,null);assert.equal(restored.intentTimer,null);assert.equal(restored.authRejected,true);
+});
+test('HAP requested speed cache is replaced with measured speed after a successful set',async t=>{
+  const {h}=fixture(t);await h.poll();await set(h.fanService,C.RotationSpeed,60);
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(h.fanService.getCharacteristic(C.RotationSpeed).value,41);
+});
+test('background retry timer fulfils a pending request without another Home command',async t=>{
+  const {h,platform}=fixture(t);t.mock.timers.enable({apis:['setTimeout']});
+  const run=platform.transport.run.bind(platform.transport);let calls=0;
+  platform.transport.run=(...args)=>++calls===1?Promise.reject(Error('temporary link loss')):run(...args);
+  await assert.rejects(set(h.boostService,C.On,true));
+  t.mock.timers.tick(10000);
+  for(let i=0;i<3;i++)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(await get(h.boostService,C.On),true);assert.equal(h.intent,null);assert.equal(calls,2);
 });
 test('failed schedule verification does not persist an applied marker',async t=>{
   const {r,h,a}=fixture(t,{silentHoursStart:'23:00',silentHoursEnd:'07:00'});
