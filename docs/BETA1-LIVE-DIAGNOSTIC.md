@@ -1,8 +1,18 @@
 # beta.1 live diagnostic — 25 October 2026
 
-Read-only examination through the existing authenticated Homebridge terminal, approximately 09:29–09:32 local time. No restart, configuration change, extra BLE connection, fan write or deployment performed.
+Evidence collected through the existing authenticated Homebridge terminal. The initial examination (approximately 09:29–09:32 local time) was read-only. Subsequent sections explicitly record the owner's authorised configuration corrections, local validation updates, child-bridge restarts and reversible manual-control trials. No whole-Pi reboot or factory reset was performed.
 
 ## KEY SUMMARY
+
+- The local validation hotfix is running on the Pi; npm remains the originally published `2.5.0-beta.1`. Source revision `9f30bae` passed 48 tests in each of four Node/Homebridge combinations.
+- Wetroom's missing address was recovered from its unique cached identity. The owner corrected its PIN privately. Both fans subsequently authenticated and supplied telemetry.
+- Kitchen Boost, cancellation, Pause and resume passed live HAP trials, including recovery of pending commands without another tap. Its Boost setting remains 2450 RPM.
+- Wetroom rejected 2450 RPM, returning Pause instead. A 2400 RPM per-fan requested-target ceiling passed ordinary Boost, cancellation, Pause, resume and a 100% slider request. Measured RPM is not capped or replaced by the requested percentage.
+- Transient command failures retry with the latest intent retained across child restarts. Explicit rejection or incompatible readback stops retrying. Siri may time out while a request is still pending; switching the relevant override off replaces that pending request.
+- Final readbacks at 13:16 UTC: Kitchen Active 1 / measured 93%; Wetroom Active 1 / measured 38%; both Boost and Pause Off, neither fan had a persisted pending request. Kitchen's high automatic reading is recorded without attributing its cause to a humidity or other trigger.
+- These are observed control trials, not proof of uninterrupted Bluetooth reliability. Background measurements expire after 45 seconds; failed commands and invalid/authentication responses fault immediately.
+
+## Initial read-only findings
 
 - Installed plugin: 2.5.0-beta.1, confirmed by package metadata and Homebridge UI.
 - Wetroom Fan configuration contains only `name` and `pin`. PIN is a six-character string; no MAC address is configured. Startup explicitly reports `FAN_ADDRESS_REQUIRED`. Its cached accessory remains present with fan, Boost and Pause services.
@@ -90,4 +100,20 @@ The Homebridge UI fan tile toggles Active rather than exposing a speed slider. A
 
 Wetroom then accepted a 96% slider request (2400 RPM target) with HTTP 204 and measured readbacks of 84%, 99%, 99%, Boost 1 and Pause 0. Boost-off returned HTTP 204 and measured readbacks of 75%, 40%, 40%, with both overrides Off. This distinguishes the accepted 2400 RPM target from the rejected 2450 RPM target; it does not establish an exact firmware-wide maximum.
 
-The candidate now provides optional per-fan `maxManualRpm` validation and UI input, applying the ceiling to Boost and slider targets while leaving measured RPM unchanged. Wetroom will be assigned the validated 2400 RPM ceiling; Kitchen's common Boost setting remains unchanged. Final live checks follow after deployment.
+The candidate now provides optional per-fan `maxManualRpm` validation and UI input, applying the ceiling to Boost and slider targets while leaving measured RPM unchanged. Wetroom was assigned the validated 2400 RPM ceiling; Kitchen's common Boost setting remains unchanged.
+
+## Final configuration activation and trials
+
+Revision `9f30baeb7c0f4eeeefb7c6f3e33bbbc7b4b76424` was hash checked and installed at 13:04. A direct child-process restart loaded the changed source but retained the parent's earlier configuration: the 13:08:44 log explicitly reported a 2450 RPM target despite the 2400 RPM value on disk. This failed trial returned HTTP 207 / HAP -70402 and correctly displayed Pause, measured 0%, rather than Boost. Pause-off returned HTTP 204 and restored automatic ventilation (48%, 48%, 39%). The deployment banner alone was therefore insufficient evidence of configuration activation.
+
+The SvaraHome plugin's **Restart Child Bridge** action in Homebridge UI was then used to reload its configuration. The next ordinary Boost request returned HTTP 204, Boost On, Pause Off and measured readings of 93%, 95%, 95%. Boost-off returned HTTP 204, both override switches Off and measured readings of 95%, 38%, 41%. The measured speed was allowed to settle naturally instead of being forced to the requested slider value.
+
+Wetroom Pause-on returned HTTP 204, Active 0, Pause On, Boost Off and three measured readings of 0%. Pause-off returned HTTP 204, Active 1, both overrides Off and measured readings of 56%, 56%, 41%.
+
+A 100% Wetroom slider request returned HTTP 204, Boost On, Pause Off and measured readings of 93%, 96%, 96%. The requested target was capped by the per-fan limit; the displayed measurement was not pinned to the requested 100%.
+
+Final Boost-off returned HTTP 204 and measured readings of 77%, 39%, 41%, with both overrides Off. Read-only checks at 13:16:16 UTC returned Kitchen Active 1, measured 93%, Boost 0, Pause 0; Wetroom Active 1, measured 38%, Boost 0, Pause 0. Both persisted accessory contexts had no pending manual request. Kitchen's elevated automatic speed was not diagnosed by these checks.
+
+The final probe recorded 42 redacted events, retained on the Pi as `/var/lib/homebridge/svarahome-live-evidence-20261025.jsonl` (SHA-256 `9f5448e4bb0a51b0300f43a1b4d2ac0913a89a81fe79db7198fe1debd8cd3512`). No PIN, full Bluetooth address or complete configuration is included.
+
+Source validation for this revision passed all four Linux Node 22/24 and Homebridge 1/2 jobs: [GitHub Actions run 40195658845](https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40195658845). Each combination passed 48 tests. Live outcomes remain separate evidence from those automated checks.

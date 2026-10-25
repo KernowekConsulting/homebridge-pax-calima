@@ -39,6 +39,8 @@ The fan's speed slider starts a temporary manual session using the Boost duratio
 
 Each fan can have its own **Maximum requested speed** in Plugin Config (`maxManualRpm`). This caps both Boost and speed-slider targets for that fan while keeping the displayed speed tied to measurement. Leave it blank for the normal 2500 RPM target limit. The owner's older Wetroom fan accepted 2400 RPM but returned zero RPM for a 2450 RPM request; its validated limit is therefore set to 2400. This observation does not establish the limit for every fan with that firmware.
 
+After saving configuration changes, use **Restart Child Bridge** on SvaraHome's plugin card. During validation, terminating the child process directly reloaded its source but retained the parent's previous configuration; the Homebridge UI restart applied the saved fan limit.
+
 Hide either switch in Plugin Config if you prefer fewer tiles. Hiding a switch does not cancel a running action. Temporary controls currently require operating mode 00, the mode tested on the newer Kitchen fan. The plugin refuses controls in other modes and does not change installation modes.
 
 ## Quiet hours
