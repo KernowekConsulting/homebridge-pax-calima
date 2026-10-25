@@ -1,4 +1,8 @@
-# 2.5.0-beta.2 validation
+# 2.5.0-beta.3 validation
+
+Beta.3 adds Fan/Boost Fan defaults, optional Pause Fan and Fan On returning either override to automatic ventilation. All 52 tests pass locally under Node 24.19.0 with Homebridge 1 and 2. Four added native-service tests cover defaults/service identity, timed pause without a Pause tile, universal resume and idempotency, persisted retry/supersession, and an ignored cancellation write that must remain a fault. The beta.3 release CI is verified separately against its exact commit before publication. Python diagnostic syntax and packaged documentation links are checked separately. No beta.3 deployment or new Siri/physical-fan trial is claimed by this preparation.
+
+## Earlier beta.2 live and CI evidence
 
 The control implementation (revision 9f30bae) passed all 48 tests in each Node 22/24 and Homebridge 1/2 combination in [Linux CI run 40195658845](https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40195658845). Live HAP checks confirmed Boost, Pause and cancellation on Kitchen and Wetroom, plus Wetroom slider control with its 2400 RPM target ceiling. Both fans finished with manual overrides Off and no pending requests.
 

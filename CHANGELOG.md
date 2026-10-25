@@ -2,7 +2,14 @@
 
 [Release notes](RELEASE_NOTES.md) describe the proposed update. Beta entries are consolidated into the stable release when it is promoted; beta history remains in GitHub prereleases and tags.
 
-## Unreleased — Stable promotion preparation
+## 2.5.0-beta.3 — Everyday fan controls
+
+- Show Fan and Boost Fan by default, with Pause Fan optional. Preserve explicitly enabled Pause settings and existing fan/service identities.
+- Use Fan Off for a timed pause and Fan On to return either Boost or Pause to automatic ventilation. Return-to-automatic requests supersede older pending commands and retry temporary failures across restarts.
+- Rename auxiliary controls to Boost Fan and Pause Fan, and explain the intended room-based Siri phrases. Apple Home may retain a user's customised names.
+- Explain that Fan Off resumes automatically after the configured Pause duration; it is not a permanent shutdown.
+- Add native Homebridge-service tests for defaults, migration, universal resume, retry persistence and truthful failures.
+
 
 - Retain the SvaraHome website as the homepage and restore the current GitHub issues URL as the issue tracker, so Homebridge can resolve GitHub release notes.
 - Include the redacted live evidence referenced by the packaged documentation.

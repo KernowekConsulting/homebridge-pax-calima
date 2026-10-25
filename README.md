@@ -29,15 +29,19 @@ The address and PIN above are examples. Each fan needs its own entry. An empty o
 
 ## In Apple Home
 
-**Boost** runs the fan at your chosen speed for the configured time. Turn it off to return to automatic ventilation. Turn it on again to start a fresh full duration.
+**Fan** is the main everyday control. Turn it off to pause for the configured Pause duration (10 minutes by default). The fan's own timer resumes automatic ventilation, even if Homebridge disconnects. Turn Fan on to return to automatic ventilation sooner, whether currently paused or boosted. Automatic ventilation can still leave the motor idle under the fan's own rules.
 
-**Pause** stops the fan temporarily. The fan's own timer returns it to automatic ventilation, even if Homebridge disconnects. Turn Pause off to resume sooner. The motor can take several seconds to respond.
+**Boost Fan** runs the fan at your chosen speed for the configured duration. Turn Boost Fan off, or turn the main Fan on, to return to automatic ventilation. Turn Boost Fan on again to start a fresh full duration.
 
-Boost and Pause share one manual override: starting one replaces the other. Switching off an already inactive control leaves the other action alone. The switches follow the fan's readback, including actions started in the official app; updates arrive after a successful poll, normally around every ten seconds plus Bluetooth connection time. Home does not show a remaining-time countdown.
+**Pause Fan** is an optional separate switch, hidden by default. Enable it in Plugin Config if you want a pause indicator or use it in automations. An explicitly saved `showPauseSwitch: true` remains enabled after upgrading. Hiding it removes the service, so check scenes that depend on it before changing that setting.
 
-Name the switches clearly in Home, such as Kitchen Boost and Kitchen Pause. You can then use scenes or Siri phrases such as “Turn on Kitchen Boost” and “Turn on Kitchen Pause”. Siri wording and tile grouping depend on your Home setup; a custom scene can provide your preferred phrase.
+In a room named Kitchen, try “Siri, turn on Boost Fan in the kitchen”, “Siri, turn off the kitchen fan” and “Siri, turn on the kitchen fan”. Siri wording depends on actual Home names and room assignments. Apple Home may retain previously customised names; rename an existing Boost or Pause tile to Boost Fan or Pause Fan there if needed. No reset or re-pairing is required.
 
-The fan's speed slider starts a temporary manual session using the Boost duration. Nonzero targets range from 1000 to 2500 RPM in steps of 25; percentages below 40% request the minimum 1000 RPM. Zero starts Pause. The displayed percentage follows measured RPM, so it can differ while the motor settles. Turning the fan off starts a timed Pause; turning it on clears an active Pause and returns to automatic ventilation. Automatic mode may still leave the motor idle under its native rules.
+**Fan Off is a timed pause, not a permanent shutdown.** Apple Home's Off label does not show that the fan will resume automatically. Choose the Pause duration in Plugin Config. The motor may take several seconds to respond.
+
+Boost and Pause share one manual override: starting one replaces the other. Switching off an already inactive auxiliary control leaves the other action alone. The switches follow the fan's readback, including actions started in the official app; updates arrive after a successful poll, normally around every ten seconds plus Bluetooth connection time. Home does not show a remaining-time countdown.
+
+The fan's speed slider starts a temporary manual session using the Boost duration. Nonzero targets range from 1000 to 2500 RPM in steps of 25; percentages below 40% request the minimum 1000 RPM. Zero starts Pause. The displayed percentage follows measured RPM, so it can differ while the motor settles.
 
 Each fan can have its own **Maximum requested speed** in Plugin Config (`maxManualRpm`). This caps both Boost and speed-slider targets for that fan while keeping the displayed speed tied to measurement. Leave it blank for the normal 2500 RPM target limit. The owner's older Wetroom fan accepted 2400 RPM but returned zero RPM for a 2450 RPM request; its validated limit is therefore set to 2400. This observation does not establish the limit for every fan with that firmware.
 
@@ -54,7 +58,7 @@ The optional Silent Hours switch enables or disables that saved schedule while p
 ## Upgrading from 2.4.x
 
 - Retain the existing fan accessory and its Home assignment. Correct each fan's address/PIN in Plugin Config; name-only entries cannot be routed safely.
-- The old event-only Boost button is replaced by an actionable switch. Check scenes that referred to the old service. Pause is added by default.
+- The old event-only Boost button is replaced by an actionable switch. Check scenes that referred to the old service. Boost Fan is shown by default; Pause Fan is optional.
 - Temperature, humidity and light tiles are removed. The previous humidity/light values came from a heat-setting characteristic; the previous temperature conversion remains unverified. These values should not drive automations. Old `showHumidity` and `showLight` settings are ignored.
 - Speed control now uses temporary manual override, leaving humidity, light and trickle speed presets alone.
 - Quiet hours are no longer rewritten on every poll. The switch represents the native schedule's enabled flag.
@@ -62,7 +66,7 @@ The optional Silent Hours switch enables or disables that saved schedule while p
 
 ## When a fan is unavailable
 
-Boost, Pause and speed requests remain pending through temporary Bluetooth failures. SvaraHome retries every ten seconds after a failed attempt until readback confirms the request or a newer manual command replaces it. Pending requests survive child-bridge restarts. To cancel a pending Boost, turn Boost off; to cancel a pending Pause, turn Pause off. A request may therefore run when the fan becomes reachable later.
+Boost, Pause, return-to-automatic and speed requests remain pending through temporary Bluetooth failures. SvaraHome retries every ten seconds after a failed attempt until readback confirms the request or a newer manual command replaces it. Pending requests survive child-bridge restarts. Turn the main Fan on to replace a pending request with return-to-automatic. Alternatively, turn Boost Fan off to cancel its pending Boost, or Pause Fan off to cancel its pending Pause. A request may therefore run when the fan becomes reachable later.
 
 The tiles follow verified fan state, never the pending request. If a reply is lost after a write, a retry first checks whether the requested override is already running, avoiding repeated timer extensions. Siri or HomeKit can time out before recovery; an error from Siri does not cancel the pending request or prove the fan did not receive it. Homebridge logs identify pending requests.
 
@@ -74,7 +78,7 @@ Check the fan's address and PIN securely in Plugin Config, Bluetooth range and a
 
 Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established timed Boost, timed zero-RPM Pause, expiry, early resume and speed changes. All tested settings were restored. Both Kitchen and the older Wetroom fan subsequently authenticated and provided telemetry after Wetroom's address and PIN were corrected. Kitchen's pending-command retries were also exercised through HomeKit switches. Wetroom's firmware 02.08 accepted a temporary 2400 RPM Boost, confirmed by HomeKit readback, and returned to automatic ventilation after cancellation. Its initial 2450 RPM request produced a zero-RPM override; the per-fan target limit addresses this observed difference.
 
-Version 2.5.0-beta.2 adds recovery and pending-command fixes to beta.1. The control implementation has been tested on the owner's Pi, with automated protocol, queue and native Homebridge-service checks. See [live diagnostic evidence](docs/BETA1-LIVE-DIAGNOSTIC.md), [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md). Brief successful sessions do not establish sustained Bluetooth reliability.
+Version 2.5.0-beta.3 adds the simpler default controls and makes Fan On clear either manual override. These changes have automated native Homebridge-service coverage; exact Siri phrases and the new presentation still need acceptance in the owner's Home. Earlier physical-control and recovery evidence comes from beta.1/beta.2 testing. See [live diagnostic evidence](docs/BETA1-LIVE-DIAGNOSTIC.md), [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md). Brief successful sessions do not establish sustained Bluetooth reliability.
 
 Homebridge verification remains an aim. The SvaraHome logo is bundled for the icon request; Homebridge controls verified status and icon display. See [verification preparation](docs/VERIFICATION.md).
 

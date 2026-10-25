@@ -13,7 +13,7 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--aid', type=int, required=True)
 parser.add_argument('--expect', required=True, help='Exact fan service name observed in Homebridge UI')
-parser.add_argument('action', choices=['read', 'resume', 'speed', 'boost-on', 'boost-off', 'pause-on', 'pause-off'])
+parser.add_argument('action', choices=['read', 'resume', 'speed', 'boost-on', 'boost-off', 'pause-on', 'pause-off', 'fan-on', 'fan-off'])
 parser.add_argument('--percent', type=int, choices=[60, 96, 100])
 args = parser.parse_args()
 if args.action == 'speed' and args.percent is None:
@@ -56,9 +56,11 @@ assert fan['23']['value'] == args.expect, 'Accessory identity differs from the o
 fields = {'active': fan['B0']['iid'], 'measured_percent': fan['29']['iid']}
 for label in ['Boost', 'Pause']:
     matches = [s for s in services if kind(s['type']) == '49' and any(
-        kind(c['type']) == '23' and c.get('value') == args.expect + ' ' + label
+        kind(c['type']) == '23' and c.get('value') in (args.expect + ' ' + label, args.expect + ' ' + label + ' Fan')
         for c in s['characteristics'])]
-    assert len(matches) == 1, 'Cannot uniquely identify ' + label
+    assert len(matches) <= 1, 'Cannot uniquely identify ' + label
+    if not matches:
+        continue
     fields[label.lower()] = next(c['iid'] for c in matches[0]['characteristics'] if kind(c['type']) == '25')
 
 
@@ -78,6 +80,9 @@ def record(event, data):
     print(event, json.dumps(data), flush=True)
 
 
+if args.action.startswith(('boost-', 'pause-')) and args.action.split('-')[0] not in fields:
+    parser.error('The requested optional switch is not exposed; use fan-on or fan-off for the main Fan control')
+
 record('BEFORE', readback())
 if args.action != 'read':
     if args.action == 'speed':
@@ -86,10 +91,12 @@ if args.action != 'read':
         target, value = fields['boost'], False
     elif args.action == 'boost-on':
         target, value = fields['boost'], True
+    elif args.action in ('resume', 'fan-on', 'fan-off'):
+        # Main Fan On clears either override in beta.3; Off starts timed Pause.
+        target, value = fields['active'], 0 if args.action == 'fan-off' else 1
     elif args.action == 'pause-on':
         target, value = fields['pause'], True
     else:
-        # Resume is intentionally Pause-off, matching the plugin's native control.
         target, value = fields['pause'], False
     status, result = request('PUT', '/characteristics', {'characteristics': [
         {'aid': args.aid, 'iid': target, 'value': value}]})

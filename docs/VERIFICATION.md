@@ -21,7 +21,11 @@ Reviewed 25 October 2026 against the current requirements and request forms. Sva
 
 The current [official requirements](https://github.com/homebridge/plugins/wiki/Verified-Plugins) specify Node 22 and 24 and were last revised on 5 May 2026. [The verification process](https://github.com/homebridge/plugins#plugin-verification) requires an issue using [the request form](https://github.com/homebridge/plugins/blob/latest/.github/ISSUE_TEMPLATE/1_verification-request.yml). The source of the orange shield is Homebridge's central verification status; it cannot be changed by adding a logo or a package field.
 
-## Release evidence
+## Beta.3 update
+
+Beta.3 simplifies the default presentation to Fan and Boost Fan; Pause Fan is optional and explicitly enabled settings are retained. Main Fan On now clears either override through the same verified, persisted request path. All 52 tests pass locally with Homebridge 1 and 2 under Node 24; exact release CI is required before publication. This extends automated evidence, not the earlier physical/Siri acceptance evidence below.
+
+## Earlier release evidence
 
 - Exact beta.2 release CI: [run 40216171472](https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40216171472), all four jobs successful. Native module loading, full/production high-severity audit gates, syntax, tests and package checks passed.
 - Published [npm beta.2](https://www.npmjs.com/package/homebridge-pax-calima/v/2.5.0-beta.2) and [matching GitHub prerelease](https://github.com/KernowekConsulting/homebridge-pax-calima/releases/tag/v2.5.0-beta.2).

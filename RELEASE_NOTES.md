@@ -1,41 +1,35 @@
-# SvaraHome 2.5.0-beta.2 — Patient requests, truthful tiles
+# SvaraHome 2.5.0-beta.3 — Everyday fan controls
 
-Ask for a boost. Let SvaraHome work through a temporary Bluetooth interruption. See what the fan has confirmed.
+A boost when you need it. A pause when you want it. One familiar way back to normal.
 
-This beta builds on SvaraHome's timed Boost and Pause controls, with recovery improvements tested on both the newer Kitchen fan and the older Wetroom fan.
+## Fan, with an optional extra
 
-## A request worth waiting for
+The default controls are now **Fan** and **Boost Fan**. **Pause Fan** remains available as an optional switch for status and automation.
 
-Boost, Pause and speed requests now stay pending through temporary Bluetooth failures. SvaraHome retries after a failed attempt, including after a child-bridge restart. A newer manual command replaces the waiting request.
+In the Kitchen, try:
 
-For example, say, “Siri, boost the kitchen fan.” Siri may still time out while Bluetooth recovers; the request can continue afterwards. Turn Boost off to cancel a pending Boost, or Pause off to cancel a pending Pause. A waiting request can start when the fan becomes reachable later.
+- “Siri, turn on Boost Fan in the kitchen.”
+- “Siri, turn off the kitchen fan.”
+- “Siri, turn on the kitchen fan.”
 
-Rejected authentication, invalid data, unsupported operating modes and an explicitly different control readback stop retries and need attention.
+Turning Fan off starts a timed pause. Turning Fan on returns either Pause or Boost to automatic ventilation. Boost Fan off also cancels a boost early. Automatic ventilation follows the fan's own rules, so resuming does not force a motor that would otherwise be idle.
 
-## What Home shows
+**Fan Off is temporary.** The fan resumes automatically when its own Pause timer ends, even if Homebridge disconnects. The default is 10 minutes; choose your preferred duration in Plugin Config. Apple Home's Off label does not explain that timer.
 
-Boost and Pause follow the fan's confirmed manual state. The speed slider returns to measured speed after a request, rather than staying at the percentage you asked for.
+## Upgrading
 
-An uncertain write is checked before it is repeated, so an already-running timer is preserved. A missed background poll retains the last verified reading only within the existing 45-second freshness limit. Failed commands and stale or invalid readings report a communication fault.
+Existing fan identities and room assignments are retained. An explicitly enabled Pause switch stays enabled; turn off **Show Pause Fan in Apple Home** if you want the simpler layout. Check scenes before hiding a switch, as hiding removes that service.
 
-Bluetooth recovery now retries stalled disconnects and waits for scanning to stop before connecting. Logs identify which fan needs attention, and Boost and Pause have explicit tile names.
+The controls now advertise Boost Fan and Pause Fan. Apple Home may retain a customised tile name; rename it there if necessary. No factory reset or re-pairing is required.
 
-## A limit for each fan
+Pending requests, readback confirmation and per-fan speed limits continue from beta.2. Fan On can now replace a waiting request with return-to-automatic, including across a child-bridge restart. Failed commands report a communication fault rather than an assumed success; Siri may still time out before Bluetooth recovers.
 
-The optional **Maximum requested speed** setting caps Boost and slider targets separately for each fan. Measured speed remains unchanged.
+## Links and validation
 
-Our older Wetroom fan accepted 2400 RPM but returned a zero-RPM override for a 2450 RPM request. Its tested limit is now 2400 RPM; Kitchen retains 2450 RPM. This is evidence from these fans, rather than a universal limit for every firmware version.
+The homepage remains the [SvaraHome website](https://homebridge.svarahome.kernowekconsulting.co.uk). The GitHub issue-tracker link is restored so Homebridge can discover release notes. Linked redacted evidence is included in the package.
 
-## Before you upgrade
+Homebridge's Plugin Homepage button still reads the stable release's metadata; its correction is held for full 2.5.0 as agreed. This beta does not change the stable channel.
 
-Check that each fan has its own Bluetooth address and correct six- or eight-digit PIN. Close the official app while Homebridge connects. After saving configuration changes, use **Restart Child Bridge** on SvaraHome's plugin card so the saved settings are loaded.
+Automated tests cover the new native Homebridge controls, migration, return-to-automatic and recovery. Earlier live fan evidence covers the underlying Boost, Pause and cancellation commands. Exact Siri recognition and the new presentation remain acceptance checks in your Home.
 
-Timed controls keep the fan's own expiry timer and leave persistent ventilation presets in place. Existing fan identities and room assignments are retained. If upgrading from 2.4.x, check scenes that used the old Boost event button; it is replaced by a working switch. Unsupported temperature, humidity and light tiles are removed.
-
-Setup guidance and support now live at the [SvaraHome website](https://homebridge.svarahome.kernowekconsulting.co.uk).
-
-## Tested, with more to learn
-
-Live checks confirmed Boost, Pause and cancellation on both fans, plus the capped speed slider on Wetroom. The control implementation passed 48 automated tests in each Node 22/24 and Homebridge 1/2 combination. Short successful trials do not establish uninterrupted Bluetooth reliability, and Siri voice recognition still depends on your Home names and scenes.
-
-This is a testing release. Homebridge verification remains pending.
+Homebridge verification remains pending.

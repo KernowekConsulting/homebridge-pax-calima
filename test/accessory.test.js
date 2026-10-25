@@ -16,7 +16,7 @@ test.before(async()=>{
   homebridge={hap,platformAccessory:PlatformAccessory};
 });
 function fixture(t,config={}) {
-  const r=fakeRadio(),logs=[],platform={config,log:{info:v=>logs.push(v),warn:v=>logs.push(v)},transport:new Transport(r.noble,50,0),save:()=>{}};
+  const r=fakeRadio(),logs=[],platform={config:{showPauseSwitch:true,...config},log:{info:v=>logs.push(v),warn:v=>logs.push(v)},transport:new Transport(r.noble,50,0),save:()=>{}};
   const a=new homebridge.platformAccessory('Kitchen Fan',hap.uuid.generate('pax-calima-'+mac),hap.Categories.FAN);a.context.mac=mac;
   const h=new FanAccessory(platform,homebridge,a,fan);
   t.after(()=>{h.close();platform.transport.close();});
@@ -26,10 +26,61 @@ async function get(service,type) { return service.getCharacteristic(type).handle
 async function set(service,type,value) { return service.getCharacteristic(type).handleSetRequest(value); }
 const C=hap.Characteristic,S=hap.Service;
 
+test('default controls are Fan and Boost Fan; an explicitly enabled Pause Fan retains its service identity',async t=>{
+  const {h,a,platform}=fixture(t,{showPauseSwitch:undefined});
+  assert.equal(h.pauseService,null);assert.ok(h.fanService);assert.ok(h.boostService);
+  assert.equal(require('../config.schema.json').schema.properties.showPauseSwitch.default,false);
+  const uuid=a.UUID,primary=h.fanService,boost=h.boostService;h.close();
+  platform.config.showPauseSwitch=true;
+  const shown=new FanAccessory(platform,homebridge,a,fan);t.after(()=>shown.close());
+  const pause=shown.pauseService;assert.ok(pause);shown.close();
+  boost.setCharacteristic(C.ConfiguredName,'Boost');pause.setCharacteristic(C.ConfiguredName,'Pause');
+  const restored=new FanAccessory(platform,homebridge,a,fan);t.after(()=>restored.close());
+  assert.equal(a.UUID,uuid);assert.equal(restored.fanService,primary);
+  assert.equal(restored.boostService,boost);assert.equal(restored.pauseService,pause);
+  assert.equal(boost.getCharacteristic(C.ConfiguredName).value,'Boost Fan');
+  assert.equal(pause.getCharacteristic(C.ConfiguredName).value,'Pause Fan');
+  assert.equal(a.services.filter(s=>s.UUID===S.Switch.UUID).length,2);
+});
+test('main Fan off starts a timed Pause without a Pause tile; Fan on clears either override without changing presets',async t=>{
+  const {r,h}=fixture(t,{showPauseSwitch:undefined,pauseMinutes:3});await h.poll();
+  await set(h.fanService,C.Active,0);
+  assert.equal(r.values.manual.toString('hex'),'010000b400');
+  assert.equal(await get(h.fanService,C.Active),0);assert.equal(h.pauseService,null);
+  await set(h.fanService,C.Active,1);assert.equal(r.values.manual.toString('hex'),'0000000000');
+  await set(h.boostService,C.On,true);assert.equal(await get(h.boostService,C.On),true);
+  await set(h.fanService,C.Active,1);assert.equal(r.values.manual.toString('hex'),'0000000000');
+  assert.equal(await get(h.boostService,C.On),false);
+  const writes=r.writes.filter(w=>w.name==='manual').length;
+  await set(h.fanService,C.Active,1);assert.equal(r.writes.filter(w=>w.name==='manual').length,writes);
+  assert.ok(r.writes.every(w=>['auth','manual'].includes(w.name)));
+});
+test('Fan on replaces an unreachable Boost request and survives restart until automatic readback is confirmed',async t=>{
+  const {r,h,a,platform}=fixture(t);await h.poll();
+  const run=platform.transport.run.bind(platform.transport);
+  platform.transport.run=async()=>{throw Error('temporarily unreachable');};
+  await assert.rejects(set(h.boostService,C.On,true));const old=h.intent;
+  await assert.rejects(set(h.fanService,C.Active,1));
+  assert.equal(a.context.pendingManual.kind,'automatic');assert.equal(a.context.pendingManual.on,false);
+  h.close();r.values.manual=Buffer.from('01d0075802','hex');platform.transport.run=run;
+  const restored=new FanAccessory(platform,homebridge,a,fan);t.after(()=>restored.close());
+  assert.equal(restored.intent.kind,'automatic');await restored.attemptIntent(restored.intent);
+  await restored.attemptIntent(old);
+  assert.equal(r.values.manual.toString('hex'),'0000000000');assert.equal(a.context.pendingManual,undefined);
+  assert.equal(await get(restored.boostService,C.On),false);
+  assert.deepEqual(r.writes.filter(w=>w.name==='manual').map(w=>w.value.toString('hex')),['0000000000']);
+});
+test('failed Fan on cannot report automatic success after an ignored cancellation write',async t=>{
+  const {r,h}=fixture(t);await h.poll();await set(h.boostService,C.On,true);
+  r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.manual).writeAsync=async()=>{};
+  await assert.rejects(set(h.fanService,C.Active,1));
+  assert.equal(h.intent,null);assert.equal(h.fault,true);assert.equal(r.values.manual[0],1);
+  await assert.rejects(get(h.fanService,C.Active));
+});
 test('native Home services expose working boost/pause with mutually exclusive readback',async t=>{
   const {r,h}=fixture(t);await h.poll();
-  assert.equal(h.boostService.getCharacteristic(C.ConfiguredName).value,'Boost');
-  assert.equal(h.pauseService.getCharacteristic(C.ConfiguredName).value,'Pause');
+  assert.equal(h.boostService.getCharacteristic(C.ConfiguredName).value,'Boost Fan');
+  assert.equal(h.pauseService.getCharacteristic(C.ConfiguredName).value,'Pause Fan');
   assert.equal(await get(h.boostService,C.On),false);assert.equal(await get(h.pauseService,C.On),false);
   await set(h.boostService,C.On,true);
   assert.equal(await get(h.boostService,C.On),true);assert.equal(await get(h.pauseService,C.On),false);
