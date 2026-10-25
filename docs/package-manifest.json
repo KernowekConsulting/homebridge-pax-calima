@@ -3,10 +3,10 @@
     "id": "homebridge-pax-calima@2.5.0-beta.1",
     "name": "homebridge-pax-calima",
     "version": "2.5.0-beta.1",
-    "size": 2053977,
-    "unpackedSize": 2332758,
-    "shasum": "5836a9b2c70aef8593d2ba0c32d60643d85e305a",
-    "integrity": "sha512-13nkBAKpfPzhQEdfJXy8HbRfid9UH5qAAkrvHsueSruJA6s+QlofMEQSiX+JeDzGZkyt0yg1pvGi8ql4y3W5dw==",
+    "size": 2054096,
+    "unpackedSize": 2333379,
+    "shasum": "26c634b2a9225ba1196a05906046ede47550a032",
+    "integrity": "sha512-EA1MlpQ5Fy7NOTFSEr5uAn1gIMETCmF0OcRh8WaEZygb9OJ90idSU9c9GBQxzx1QIWvRLtE+K9OuiLZSmfw6og==",
     "filename": "homebridge-pax-calima-2.5.0-beta.1.tgz",
     "files": [
       {
@@ -56,12 +56,12 @@
       },
       {
         "path": "docs/DEPENDENCY-SECURITY.md",
-        "size": 4748,
+        "size": 4958,
         "mode": 420
       },
       {
         "path": "docs/VALIDATION.md",
-        "size": 5315,
+        "size": 5726,
         "mode": 420
       },
       {
