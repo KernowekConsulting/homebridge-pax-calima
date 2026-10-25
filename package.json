@@ -34,7 +34,8 @@
   "scripts": {
     "test": "node --test test/*.test.js",
     "check": "node --check index.js && node --check lib/accessory.js && node --check lib/platform.js && node --check lib/protocol.js && node --check lib/transport.js",
-    "audit:release": "npm audit --audit-level=high && npm audit --omit=dev --audit-level=high"
+    "audit:release": "npm audit --audit-level=high && npm audit --omit=dev --audit-level=high",
+    "check:native": "node scripts/check-native.cjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
@@ -52,7 +53,8 @@
     "LICENSE",
     "docs/VALIDATION.md",
     "docs/VERIFICATION.md",
-    "docs/DEPENDENCY-SECURITY.md"
+    "docs/DEPENDENCY-SECURITY.md",
+    "scripts/check-native.cjs"
   ],
   "dependencies": {
     "@stoprocent/noble": "2.8.0"

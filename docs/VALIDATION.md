@@ -29,7 +29,7 @@ The older fan (software 02.08) did not confirm authentication using the attempte
 
 ## Remaining acceptance gates
 
-1. Complete native Linux installation/execution on supported Node versions. The vulnerable dependency chain has been replaced and full, production and Linux ARM64 resolution audits now report zero vulnerabilities; see DEPENDENCY-SECURITY.md. Linux resolution was checked on macOS without lifecycle scripts, so native Linux compatibility remains to be confirmed.
+1. Native Linux installation/load is complete on the Pi: Linux ARM64, Node 24.22.1 and isolated Node 22.23.4, with the adapter left uninitialised. Full, production, Linux resolution, consumer and Pi audits report zero vulnerabilities. See DEPENDENCY-SECURITY.md. This verifies dependency installation/loading, not live fan control.
 2. Save/reload Plugin Config on the Pi, securely correct the older fan's address/PIN, and confirm six/eight-digit routing without exposing either PIN in evidence.
 3. Deploy the candidate deliberately to the fan child bridge, retaining the existing installed package for rollback. Confirm normal authenticated polling and invalid-PIN fault behavior.
 4. In Apple Home, exercise Boost, Pause, early resume, timer expiry and slider control. Check mutual exclusion, command rejection/offline presentation and the expected service migration. Verify Siri using actual Home names/scenes.

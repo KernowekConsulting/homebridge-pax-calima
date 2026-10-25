@@ -1,0 +1,62 @@
+{
+  "utc": "2026-10-25T09:01:00.170083+00:00",
+  "work": "/tmp/svarahome-native-_k_nllcz",
+  "before": {
+    "config.json": "9e03dec41d2284d4d4766580d95811ca155cf290d28eb770ba658b7fe7c77fc7",
+    "node_modules/homebridge-pax-calima/index.js": "2636542d5107f420146c65a1f23b6a7f3f4c487132658a19119602f3a93a018d"
+  },
+  "beforeHomebridgePids": [
+    51352,
+    51365,
+    51372,
+    120208,
+    167016
+  ],
+  "installExit": 0,
+  "nativeLoadExit": 0,
+  "auditExit": 0,
+  "vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "after": {
+    "config.json": "9e03dec41d2284d4d4766580d95811ca155cf290d28eb770ba658b7fe7c77fc7",
+    "node_modules/homebridge-pax-calima/index.js": "2636542d5107f420146c65a1f23b6a7f3f4c487132658a19119602f3a93a018d"
+  },
+  "afterHomebridgePids": [
+    51352,
+    51365,
+    51372,
+    120208,
+    167016
+  ],
+  "filesUnchanged": true,
+  "bridgePidsUnchanged": true,
+  "initialNativeCheck": {
+    "exit": 1,
+    "cause": "Checker assumed hoisted optional dependency; module was correctly nested under Noble"
+  },
+  "native": {
+    "platform": "linux",
+    "arch": "arm64",
+    "node": "v24.22.1",
+    "noble": "2.8.0",
+    "hci": "2.3.0",
+    "nativeHciLoaded": true,
+    "adapterInitialized": false
+  },
+  "completedUtc": "2026-10-25T09:04:38.351006+00:00",
+  "node22InstallExit": 0,
+  "node22NativeLoadExit": 0,
+  "nativeNode22": {
+    "platform": "linux",
+    "arch": "arm64",
+    "node": "v22.23.4",
+    "nativeHciLoaded": true,
+    "adapterInitialized": false
+  }
+}

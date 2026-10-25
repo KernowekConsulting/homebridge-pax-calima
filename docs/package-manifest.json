@@ -3,15 +3,15 @@
     "id": "homebridge-pax-calima@2.5.0-beta.1",
     "name": "homebridge-pax-calima",
     "version": "2.5.0-beta.1",
-    "size": 2053026,
-    "unpackedSize": 2330081,
-    "shasum": "ac937313364842645b214e98841666d30ef19772",
-    "integrity": "sha512-fwjpceN/oraqiUL/8GKKn175T4MbpHQi1vWIuQKTVpJTXaNvQA5l3tLGqQFOI+ix72L5cNz/sC+mS/n0+qZbGQ==",
+    "size": 2053977,
+    "unpackedSize": 2332758,
+    "shasum": "5836a9b2c70aef8593d2ba0c32d60643d85e305a",
+    "integrity": "sha512-13nkBAKpfPzhQEdfJXy8HbRfid9UH5qAAkrvHsueSruJA6s+QlofMEQSiX+JeDzGZkyt0yg1pvGi8ql4y3W5dw==",
     "filename": "homebridge-pax-calima-2.5.0-beta.1.tgz",
     "files": [
       {
         "path": "CHANGELOG.md",
-        "size": 3495,
+        "size": 3650,
         "mode": 420
       },
       {
@@ -56,17 +56,17 @@
       },
       {
         "path": "docs/DEPENDENCY-SECURITY.md",
-        "size": 3662,
+        "size": 4748,
         "mode": 420
       },
       {
         "path": "docs/VALIDATION.md",
-        "size": 5345,
+        "size": 5315,
         "mode": 420
       },
       {
         "path": "docs/VERIFICATION.md",
-        "size": 4546,
+        "size": 4608,
         "mode": 420
       },
       {
@@ -96,11 +96,16 @@
       },
       {
         "path": "package.json",
-        "size": 1640,
+        "size": 1725,
+        "mode": 420
+      },
+      {
+        "path": "scripts/check-native.cjs",
+        "size": 1319,
         "mode": 420
       }
     ],
-    "entryCount": 18,
+    "entryCount": 19,
     "bundled": []
   }
 ]

@@ -22,8 +22,8 @@ The current requirements name supported Node LTS 22 and 24, a dynamic platform, 
 | Configuration gate | No Noble load or radio work for absent/empty/unusable fan config; unroutable cached accessories remain faulted. |
 | Errors | Bounded sessions, rejected-PIN polling stop, redacted messages and HomeKit communication errors; no optimistic success after rejected readback. |
 | Storage/tracking | No runtime files outside Homebridge. Only schedule-application metadata is saved through accessory context. No analytics or cloud calls. |
-| Installation/startup | Plugin has no install/postinstall script or TTY requirement. Noble has native dependencies: clean Linux install and ordinary Homebridge Bluetooth permissions must be validated before claiming compliance. |
-| Dependency audit | The vulnerable Noble/native build chain has been replaced. Full, production and Linux ARM64 resolution audits report zero vulnerabilities; see DEPENDENCY-SECURITY.md. Native Linux execution remains an acceptance check. |
+| Installation/startup | Plugin has no install/postinstall script or TTY requirement. Noble native dependencies install/load successfully on the Pi under Node 22/24 without starting the adapter. Live Bluetooth access through the installed plugin still needs acceptance testing. |
+| Dependency audit | The vulnerable Noble/native build chain has been replaced. All saved audits, including the Pi, report zero vulnerabilities. Native Linux ARM64 install/load passes on Node 22/24; actual fan communication remains an acceptance check. |
 | Comparable verified plugin | Current list has no name matching Pax or Calima. A full functionality comparison and final decision remain with Homebridge reviewers. |
 | Publication | Local candidate only. npm publication and matching GitHub release remain pending acceptance. |
 

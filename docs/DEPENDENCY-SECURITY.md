@@ -27,10 +27,16 @@ Source evidence: the installed published package contents and integrity-pinned l
 - `linux-arm64-resolution.log`: fresh `npm ci --omit=dev --ignore-scripts --os=linux --cpu=arm64`. Lifecycle scripts were deliberately disabled because the host is macOS. This checks dependency resolution and audit, not Linux binary execution.
 - Native dependency install scripts completed locally. The macOS Noble native addon loads on Node 22.23.4 and 24.19.0 without creating or starting an adapter. The Linux-only HCI addon cannot be executed on macOS and is not claimed tested here.
 - 32 tests pass with Node 22/24 and real Homebridge 1.11.4/2.4.0 services. Three added tests instantiate the maintained Noble/Peripheral/Service/Characteristic classes with a simulated physical binding, exercising authenticated read/write, rescanning, disconnection, rejected authentication and expired override decoding.
-- CI now runs full and production audits with a high-severity failure threshold, alongside native Linux installation and the compatibility test matrix. This workflow is prepared locally and has not run on GitHub yet.
+- CI now runs full and production audits with a high-severity failure threshold, native install/load checks and the compatibility test matrix. `scripts/check-native.cjs` resolves optional dependencies from Noble itself, supporting both nested and hoisted layouts. This workflow is prepared locally and has not run on GitHub yet.
 
 Audits describe known advisories returned at check time; they are not a guarantee against undiscovered issues. Repeat them before publication.
 
 ## Remaining acceptance
 
-The Mac was locked when the authorised Homebridge UI route was checked, preventing an isolated native Linux install/load check on the Pi. No production plugin deployment, bridge restart, adapter permission change or fan write occurred for this remediation. Native Linux execution and the actual Pi/Home acceptance tests remain separate gates; the seven dependency findings themselves are cleared by the saved audits.
+After the owner unlocked the Mac, an isolated production dependency installation on the Homebridge Pi completed with native lifecycle scripts enabled. The native HCI dependency loaded successfully on Linux ARM64 under the installed Node 24.22.1 and an isolated Node 22.23.4 runtime. Noble remained uninitialised in both checks: no scan, radio start or fan connection occurred. The Pi audit also returned zero vulnerabilities.
+
+The first checker incorrectly assumed the HCI package would be hoisted to the project root. npm had correctly nested it under Noble. Resolving from Noble’s own package fixed the checker; the module itself required no repair. This initial failed check and its correction are retained in the evidence.
+
+`pi-native-evidence.json` preserves the complete result, Pi audit and install logs; `pi-native-result.json` and `dependency-audit-pi.json` provide separate views. The evidence capsule’s SHA256 is `26407c16508f1fdb5e5c4edf8c09ffdbcede0c9e65c9e659a076387fde9ee8ec`.
+
+Homebridge configuration and installed 2.4.5 plugin source hashes matched before/after. All five observed Homebridge process IDs remained unchanged, including the fan bridge PID 167016. No production plugin deployment, bridge restart, adapter permission change or fan write occurred. Native Linux install/load is now verified; the actual plugin’s Pi/Home acceptance tests remain outstanding.

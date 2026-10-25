@@ -39,12 +39,13 @@
 
 - Replaced the old Bluetooth dependency with the maintained Noble fork, removing the vulnerable archive and native-build dependency chain.
 - Confirmed zero reported vulnerabilities in fresh full and production audits, including a separately resolved Linux ARM64 production tree.
-- Added high/critical audit gates to CI.
+- Added high/critical audit gates and a native-module load check to CI.
 
 ### Beta validation
 
 - Automated tests passed across Node 22/24 and Homebridge 1/2.
-- Live deployment, older-fan authentication and a native Linux installation test remain outstanding.
+- Verified isolated native Linux ARM64 installation/loading on the Pi under Node 22/24, without initialising Bluetooth or changing the running bridge.
+- Live plugin deployment and older-fan authentication remain outstanding.
 - Homebridge verification remains pending.
 
 ## 2.4.5
