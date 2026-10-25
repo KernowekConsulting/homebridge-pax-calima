@@ -6,90 +6,104 @@
     "type": "object",
     "properties": {
       "name": {
-        "title": "Platform Name",
+        "title": "Plugin name",
         "type": "string",
         "default": "Pax Calima / Vent-Axia Svara"
       },
-      "silentHoursStart": {
-        "title": "Silent Hours — Start Time",
-        "type": "string",
-        "placeholder": "23:00",
-        "description": "When the fan stops boosting at night. Enter in 24-hour format, e.g. 23:00. Leave blank to disable the schedule."
-      },
-      "silentHoursEnd": {
-        "title": "Silent Hours — End Time",
-        "type": "string",
-        "placeholder": "07:00",
-        "description": "When the fan resumes boosting in the morning. Enter in 24-hour format, e.g. 07:00. Both start and end must be set for the schedule to activate."
-      },
-      "showSilentSwitch": {
-        "title": "Show Silent Hours Switch in Home",
-        "type": "boolean",
-        "default": false,
-        "description": "Adds a Silent Hours on/off switch to your accessory in the Home app. Useful for including in a Goodnight scene or automation. Good for shift workers or irregular schedules."
-      },
-      "showHumidity": {
-        "title": "Show Humidity Sensor",
-        "type": "boolean",
-        "default": false,
-        "description": "⚠️ The fan's humidity reading reflects its internal threshold state and updates infrequently — it is NOT a live sensor reading and is NOT suitable for Siri queries or real-time automations. Only enable if you understand and accept this limitation."
-      },
-      "showLight": {
-        "title": "Show Light Sensor",
-        "type": "boolean",
-        "default": false,
-        "description": "⚠️ The fan's light reading reflects its internal threshold state and updates infrequently — it is NOT a live lux reading. Confirmed via testing: the value remains static regardless of lighting conditions. Only enable if you understand this limitation."
-      },
       "fans": {
-        "title": "Manually Configured Fans",
-        "description": "Optional. Leave empty for auto-discovery. Add entries here only to set a custom name or PIN per fan.",
+        "title": "Your fans",
+        "description": "Add each fan with its own Bluetooth address and PIN. Find these in the official app. Each entry must identify one fan.",
         "type": "array",
         "items": {
           "type": "object",
           "properties": {
             "name": {
-              "title": "Accessory Name",
+              "title": "Fan name",
               "type": "string",
               "default": "Bathroom Fan"
             },
             "mac": {
-              "title": "MAC Address",
+              "title": "Bluetooth address",
               "type": "string",
-              "placeholder": "58:2b:db:xx:xx:xx",
-              "description": "MAC address of the fan — found in the official Pax or Vent-Axia app under About Device."
+              "pattern": "^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$",
+              "placeholder": "58:2b:db:12:34:56"
             },
             "pin": {
-              "title": "PIN Code",
+              "title": "Fan PIN",
               "type": "string",
-              "default": "012345",
-              "description": "6-digit PIN. Only change if you set a custom PIN in the official app."
+              "pattern": "^(?:[0-9]{6}|[0-9]{8})$",
+              "description": "Enter this fan’s six- or eight-digit PIN, including any leading zeroes. The PIN is stored in your Homebridge configuration.",
+              "secret": true
             }
           },
-          "required": ["name", "mac"]
+          "required": [
+            "mac",
+            "pin"
+          ]
         }
+      },
+      "showBoostSwitch": {
+        "title": "Show Boost in Apple Home",
+        "type": "boolean",
+        "default": true,
+        "description": "Start a timed boost. Turning Boost off returns the fan to automatic ventilation."
+      },
+      "boostMinutes": {
+        "title": "Boost duration (minutes)",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60,
+        "default": 10
+      },
+      "boostRpm": {
+        "title": "Boost speed (RPM)",
+        "type": "integer",
+        "minimum": 1000,
+        "maximum": 2500,
+        "multipleOf": 25,
+        "default": 2000,
+        "description": "Choose a speed in steps of 25 RPM. The Home speed slider also starts a temporary session."
+      },
+      "showPauseSwitch": {
+        "title": "Show Pause in Apple Home",
+        "type": "boolean",
+        "default": true,
+        "description": "Stop the fan temporarily. Ventilation returns automatically when the fan’s timer ends. Turn Pause off to resume sooner."
+      },
+      "pauseMinutes": {
+        "title": "Pause duration (minutes)",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60,
+        "default": 10
+      },
+      "silentHoursStart": {
+        "title": "Quiet hours start",
+        "type": "string",
+        "placeholder": "22:00",
+        "description": "Optional. Use 24-hour time, such as 22:00. Set both times. A changed schedule is saved to the fan once; later app edits are respected."
+      },
+      "silentHoursEnd": {
+        "title": "Quiet hours end",
+        "type": "string",
+        "placeholder": "06:00",
+        "description": "Use 24-hour time, such as 06:00. Leave both fields blank to retain the fan’s existing schedule."
+      },
+      "showSilentSwitch": {
+        "title": "Show Silent Hours in Apple Home",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable or disable the fan’s saved quiet-hours schedule. This preserves its times; it does not start an immediate pause."
       }
-    }
+    },
+    "required": [
+      "fans"
+    ]
   },
   "layout": [
     {
       "type": "section",
-      "title": "Silent Hours",
-      "expandable": true,
-      "expanded": false,
-      "items": ["silentHoursStart", "silentHoursEnd", "showSilentSwitch"]
-    },
-    {
-      "type": "section",
-      "title": "Optional Sensors",
-      "expandable": true,
-      "expanded": false,
-      "items": ["showHumidity", "showLight"]
-    },
-    {
-      "type": "section",
-      "title": "Fans (optional — auto-discovery recommended)",
-      "expandable": true,
-      "expanded": false,
+      "title": "Your fans",
       "items": [
         {
           "key": "fans",
@@ -100,6 +114,28 @@
             "fans[].pin"
           ]
         }
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Boost and Pause",
+      "items": [
+        "showBoostSwitch",
+        "boostMinutes",
+        "boostRpm",
+        "showPauseSwitch",
+        "pauseMinutes"
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Quiet hours",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "silentHoursStart",
+        "silentHoursEnd",
+        "showSilentSwitch"
       ]
     }
   ]

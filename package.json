@@ -1,8 +1,8 @@
 {
   "name": "homebridge-pax-calima",
   "displayName": "Vent-Axia Svara / Pax Calima",
-  "version": "2.4.5",
-  "description": "Bring your Pax Calima or Vent-Axia Svara bathroom fan into Apple Home via Bluetooth \u2014 live temperature and fan speed with Silent Hours scheduling and full automation support.",
+  "version": "2.5.0",
+  "description": "Timed Boost and Pause for Pax Calima and Vent-Axia Svara fans in Apple Home, with local Bluetooth control and verified readback.",
   "main": "index.js",
   "keywords": [
     "homebridge-plugin",
@@ -14,22 +14,44 @@
     "bluetooth",
     "fan",
     "extractor",
-    "bathroom"
+    "bathroom",
+    "supports-hap"
   ],
   "engines": {
-    "homebridge": "^1.6.0 || ^2.0.0",
-    "node": ">=18.20.4"
+    "homebridge": "^1.8.0 || ^2.0.0",
+    "node": "^22.12.0 || ^24.0.0"
   },
   "dependencies": {
     "@abandonware/noble": "1.9.2-26"
   },
-  "homepage": "https://github.com/JayC68/homebridge-pax-calima",
+  "homepage": "https://github.com/KernowekConsulting/homebridge-pax-calima",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JayC68/homebridge-pax-calima.git"
+    "url": "git+https://github.com/KernowekConsulting/homebridge-pax-calima.git"
   },
   "bugs": {
-    "url": "https://github.com/JayC68/homebridge-pax-calima/issues"
+    "url": "https://github.com/KernowekConsulting/homebridge-pax-calima/issues"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node --check index.js && node --check lib/accessory.js && node --check lib/platform.js && node --check lib/protocol.js && node --check lib/transport.js"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "homebridge": "2.4.0",
+    "homebridge1": "npm:homebridge@^1.11.4"
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "config.schema.json",
+    "assets/",
+    "README.md",
+    "CHANGELOG.md",
+    "RELEASE_NOTES.md",
+    "LICENSE",
+    "docs/VALIDATION.md",
+    "docs/VERIFICATION.md"
+  ]
 }

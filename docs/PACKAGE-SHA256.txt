@@ -1,0 +1,1 @@
+7b10c6feee9fb9e5edcac6bc006d4aa61bdfd9501ead86d10355c23e4f214efb  homebridge-pax-calima-2.5.0.tgz

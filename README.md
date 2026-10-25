@@ -1,228 +1,69 @@
-# homebridge-pax-calima
+# Vent-Axia Svara / Pax Calima for Homebridge
 
-**Bring your bathroom fan into Apple Home — no hub, no cloud, just Bluetooth.**
+Give the fan a boost. Pause it for a quiet moment. Let it return to normal when the time is up.
 
-If you have a **Pax Calima** or **Vent-Axia Lo-Carbon Svara** extractor fan, this plugin connects it directly to HomeKit via Bluetooth. Once set up, your fan appears in the Home app with live temperature and fan speed — and you can build automations around all of them.
+Local Bluetooth control for Pax Calima and Vent-Axia Svara fans in Apple Home. No cloud account is needed.
 
-[![Homebridge 2 Ready](https://img.shields.io/badge/Homebridge-2%20Ready-brightgreen)](https://github.com/homebridge/homebridge/wiki/Updating-To-Homebridge-v2.0)
-[![npm](https://img.shields.io/npm/v/homebridge-pax-calima)](https://www.npmjs.com/package/homebridge-pax-calima)
+## Set up your fan
 
----
+Install `homebridge-pax-calima` through Homebridge UI, then open Plugin Config. Add each fan's Bluetooth address and its own six- or eight-digit PIN from the official app. Keep leading zeroes. Close the official app while Homebridge connects.
 
-## Is this the right plugin for your fan?
-
-This plugin works with fans that connect via the official **Pax** or **Vent-Axia** Bluetooth app. If your fan has a MAC address starting with `58:2b:db`, you're in the right place.
-
-**Confirmed compatible:**
-- Pax Calima — Sweden, Norway, Denmark, Finland, Spain, Portugal
-- Vent-Axia Lo-Carbon Svara White — UK
-- Vent-Axia Lo-Carbon Svara Black — UK
-
-These fans are hardware-identical. The same plugin works for all of them.
-
----
-
-## What you get in the Home app
-
-Each fan appears as a single accessory with:
-
-- 💨 **Fan speed** — shows current RPM as a percentage, live and accurate
-- 🌡️ **Temperature** — live reading, updates every ~20 seconds
-- ⚡ **Boost** — a button that triggers the fan's high-speed boost mode
-- 🌙 **Silent Hours** — keeps the fan quiet at night; set a schedule, a switch, or both (see below)
-- 💧 **Humidity** — available but off by default (read below before enabling)
-- 💡 **Light level** — available but off by default (read below before enabling)
-
-> Accessories appear in the **Home app on your iPhone**, not the Homebridge UI accessories tab — that's normal for child bridge plugins.
-
----
-
-## Before you start
-
-You'll need:
-- Homebridge `^1.6.0` or `^2.0.0`
-- Node.js `18.20.4` or later
-- A Bluetooth adapter on your Homebridge host (the Pi 4's built-in adapter works well)
-
-**Running Homebridge OS on a Raspberry Pi?** There's one extra step after installation. Run this once in the **Homebridge terminal**:
-
-```bash
-sudo setcap cap_net_raw+eip /opt/homebridge/bin/node
-```
-
-If Bluetooth shows as off after that:
-
-```bash
-sudo rfkill unblock bluetooth
-```
-
-If things still aren't working after both of those — unplug the Pi, wait 10 seconds, plug it back in. A full power cycle rather than a software restart is sometimes needed to reinitialise the Bluetooth stack cleanly.
-
----
-
-## Installation
-
-Search for **Pax Calima** or **Svara** in the Homebridge UI and click Install.
-
-Or via terminal:
-```bash
-npm install -g homebridge-pax-calima
-```
-
----
-
-## Configuration
-
-**You don't need to configure anything to get started.** The plugin finds your fan automatically and registers it in HomeKit.
-
-A full config example with all options:
+Use Node 22.12 or later within Node 22, or Node 24, with Homebridge 1.8+ or 2. A working Bluetooth adapter and the normal Bluetooth access for your Homebridge installation are required. A dedicated child bridge is recommended. This plugin does not alter system permissions or install system tools.
 
 ```json
 {
   "platform": "PaxCalima",
-  "name": "Pax Calima / Vent-Axia Svara",
-  "silentHoursStart": "23:00",
-  "silentHoursEnd": "07:00",
-  "showSilentSwitch": false,
-  "showHumidity": false,
-  "showLight": false,
+  "name": "Vent-Axia Svara / Pax Calima",
   "fans": [
-    {
-      "name": "Wetroom Fan",
-      "mac": "58:2b:db:xx:xx:xx",
-      "pin": "012345"
-    }
-  ]
+    { "name": "Kitchen Fan", "mac": "58:2b:db:12:34:56", "pin": "00123456" }
+  ],
+  "boostMinutes": 10,
+  "boostRpm": 2000,
+  "pauseMinutes": 10
 }
 ```
 
-| Setting | Default | What it does |
-|---|---|---|
-| `silentHoursStart` | — | Time the fan stops boosting at night, e.g. `"23:00"` |
-| `silentHoursEnd` | — | Time the fan resumes boosting, e.g. `"07:00"` |
-| `showSilentSwitch` | `false` | Adds a Silent Hours switch to the Home app — great for Goodnight scenes |
-| `showHumidity` | `false` | Shows humidity tile — read the note below first |
-| `showLight` | `false` | Shows light tile — read the note below first |
-| `fans[].name` | Auto | Friendly name for a specific fan |
-| `fans[].mac` | — | Only needed to assign a custom name or PIN |
-| `fans[].pin` | `012345` | 6-digit PIN — only change if set via the official app |
+The address and PIN above are examples. Each fan needs its own entry. An empty or invalid configuration does not start Bluetooth discovery. Incorrect fan entries are skipped, with a short explanation in the Homebridge log. There is no fallback PIN or automatic pairing with nearby fans.
 
----
+## In Apple Home
 
-## Silent Hours
+**Boost** runs the fan at your chosen speed for the configured time. Turn it off to return to automatic ventilation. Turn it on again to start a fresh full duration.
 
-Silent Hours tells the fan not to boost during a set period — useful for not being woken by a noisy fan at 3am.
+**Pause** stops the fan temporarily. The fan's own timer returns it to automatic ventilation, even if Homebridge disconnects. Turn Pause off to resume sooner. The motor can take several seconds to respond.
 
-**Two ways to use it — pick one or combine both:**
+Boost and Pause share one manual override: starting one replaces the other. Switching off an already inactive control leaves the other action alone. The switches follow the fan's readback, including actions started in the official app; updates arrive after a successful poll, normally around every ten seconds plus Bluetooth connection time. Home does not show a remaining-time countdown.
 
-**Schedule (set and forget):** Set `silentHoursStart` and `silentHoursEnd` in your config using 24-hour format. The plugin calculates whether you're in the quiet window on every poll and writes the schedule to the fan automatically. Overnight spans work correctly — `23:00` to `07:00` does what you'd expect.
+Name the switches clearly in Home, such as Kitchen Boost and Kitchen Pause. You can then use scenes or Siri phrases such as “Turn on Kitchen Boost” and “Turn on Kitchen Pause”. Siri wording and tile grouping depend on your Home setup; a custom scene can provide your preferred phrase.
 
-**Switch (for scenes and shift workers):** Set `showSilentSwitch: true` to add a Silent Hours on/off switch to your accessory. This is ideal for including in a **Goodnight scene** alongside lights and heating — one tap and the fan goes quiet with everything else. It's also the right choice if your sleep schedule changes regularly, like shift work, where a fixed time window doesn't suit.
+The fan's speed slider starts a temporary manual session using the Boost duration. Nonzero targets range from 1000 to 2500 RPM in steps of 25; percentages below 40% request the minimum 1000 RPM. Zero starts Pause. The displayed percentage follows measured RPM, so it can differ while the motor settles. Turning the fan off starts a timed Pause; turning it on clears an active Pause and returns to automatic ventilation. Automatic mode may still leave the motor idle under its native rules.
 
-**Using both together:** If you set a schedule AND enable the switch, the switch takes priority when you toggle it manually. The schedule still runs in the background — useful as a safety net if you forget to turn the switch back on.
+Hide either switch in Plugin Config if you prefer fewer tiles. Hiding a switch does not cancel a running action. Temporary controls currently require operating mode 00, the mode tested on the newer Kitchen fan. The plugin refuses controls in other modes and does not change installation modes.
 
----
+## Quiet hours
 
-## A note on humidity and light
+Leave both time fields blank to retain the fan's own schedule. To save a new schedule, enter different start and end times in 24-hour format. A changed plugin schedule is applied and checked once. Later changes in the official app are retained across polls and Homebridge restarts.
 
-Both tiles are **off by default**, and for good reason.
+The optional Silent Hours switch enables or disables that saved schedule while preserving its times. It does not start an immediate quiet period; use Pause for that. Native quiet-hours suppression of automatic boosts has not yet been behaviorally verified by this project.
 
-During testing we confirmed that both sensors — while active on the device — don't expose live readings via Bluetooth. The fan uses them internally to decide when to boost, but the BLE characteristic returns the fan's last internal threshold state rather than a continuous measurement. In practical terms:
+## Upgrading from 2.4.x
 
-- With all lights off at 21:20, the fan's Bluetooth still reported **52 lux**
-- After a shower that raised the room to **89% humidity**, the Bluetooth still reported **50%**
+- Retain the existing fan accessory and its Home assignment. Correct each fan's address/PIN in Plugin Config; name-only entries cannot be routed safely.
+- The old event-only Boost button is replaced by an actionable switch. Check scenes that referred to the old service. Pause is added by default.
+- Temperature, humidity and light tiles are removed. The previous humidity/light values came from a heat-setting characteristic; the previous temperature conversion remains unverified. These values should not drive automations. Old `showHumidity` and `showLight` settings are ignored.
+- Speed control now uses temporary manual override, leaving humidity, light and trickle speed presets alone.
+- Quiet hours are no longer rewritten on every poll. The switch represents the native schedule's enabled flag.
+- No factory reset or accessory-cache reset is required.
 
-This isn't a bug in the plugin — it's how the fan's firmware works (confirmed on firmware 02.08, and consistent with observations from the Home Assistant community).
+## When a fan is unavailable
 
-**If you turn them on**, be aware that:
-- Asking Siri "what's the humidity in the bathroom?" will likely return a stale number
-- Automations based on these values won't fire reliably
+Home reports a communication failure when authentication fails, readback cannot be confirmed, telemetry is stale or RPM is outside the accepted range. A failed command can still have reached the fan if its reply was lost; the next successful poll reconciles state. The plugin does not retry an uncertain control write automatically. A rejected PIN stops unattended authentication retries; correct the configuration and restart the child bridge, or use an explicit Home command to retry.
 
-**What does work well for shower detection:** when the fan's internal humidity sensor detects a sharp rise, it boosts to near full speed automatically. A `Fan Speed > 75%` automation in Apple Home is a reliable, practical trigger for "shower in use."
+Check the fan's address and PIN securely in Plugin Config, Bluetooth range and adapter access, and whether another app is connected. The plugin never prints PINs or raw backend errors. After a timed-out connection, it blocks further sessions until disconnection is known; `BLE_RECOVERY_REQUIRED` may require restarting only the fan child bridge after checking the adapter.
 
-If you want to enable humidity or light anyway — perhaps for settled ambient readings — set `showHumidity: true` or `showLight: true` in your config.
+## What has been checked
 
----
+Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established timed Boost, timed zero-RPM Pause, expiry, early resume and speed changes. All tested settings were restored. The older fan did not confirm authentication, so its controls remain unverified.
 
-## Fan speed control — it depends on how your fan is wired
+The 2.5.0 implementation has automated protocol, queue and native Homebridge-service tests, including replay of recorded telemetry. It has not yet been deployed or tested end to end in Apple Home. See [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md).
 
-The fan can be installed in two wiring modes:
-
-**Intermittent mode** — the fan is off by default and spins up when triggered. In this mode the speed slider in Apple Home works as expected.
-
-**Always-on (trickle) mode** — the fan runs continuously at a speed managed by its own controller. Speed commands are accepted via Bluetooth but the fan resets to its own setpoint within seconds. The slider shows the current speed accurately but can't override it.
-
-Not sure which mode you have? If your fan is always running — even quietly — you're in always-on mode. In either mode, temperature, fan speed and automations work perfectly.
-
----
-
-## Something not working?
-
-**Fan not showing up in Home**
-Run `hciconfig` in the Homebridge terminal — you should see `UP RUNNING`. If it shows `RF-KILL`, run `sudo rfkill unblock bluetooth`. If still nothing, unplug the Pi and power cycle it.
-
-**setcap not taking effect**
-Make sure you're targeting the right binary — on Homebridge OS it's `/opt/homebridge/bin/node`, not the system Node.
-
-**Wrong PIN**
-Default is `012345`. If you changed it in the official app, add the fan to the `fans` config array with the correct PIN.
-
-**Speed slider does nothing**
-Your fan is in always-on mode — see above. Everything else works normally.
-
-**Humidity or light reading seems stuck**
-This is expected firmware behaviour — see the sensor note above.
-
-**Accessories not appearing in Home**
-Go to Homebridge UI → plugin settings → Remove Accessory Cache, then restart. They'll reappear within a few seconds.
-
----
-
-## Homebridge 2 compatibility
-
-This plugin is compatible with Homebridge 2:
-- Registered as a dynamic platform
-- Waits for `didFinishLaunching` before starting BLE or accessory work
-- Uses the Homebridge 2-compatible `Accessory.getServiceById()` API for the optional Silent Hours service
-- No analytics, tracking or post-install scripts
-- Accessories restore cleanly from cache without re-registration
-- Requires Node.js 18.20.4 or later
-- Live-tested on Homebridge 2.4.0 (HAP 2.2.2) with Node.js 24.19.0
-
----
-
-## Release notes
-
-### 2.4.5
-- **Fixed:** Homebridge 2 compatibility for the optional Silent Hours switch. Homebridge 2 removed `Accessory.getServiceByUUIDAndSubType()`; both lookups now use the supported `Accessory.getServiceById()` API.
-- **Verified:** Live-tested successfully on Homebridge 2.4.0 (HAP 2.2.2) with Node.js 24.19.0 on Homebridge OS.
-- No BLE protocol, fan control, sensor mapping, configuration, or accessory behaviour changes.
-
-### 2.4.4
-- **Fixed:** Silent Hours time fields no longer show a raw regex pattern as validation hint in the Homebridge UI — replaced with plain human-readable placeholder text (e.g. `23:00`) and a description
-- **Improved:** Invalid time format now logs a clear warning message rather than silently disabling the schedule
-
-### 2.4.3
-- **Silent Hours** reworked — now supports a config schedule (`silentHoursStart` / `silentHoursEnd`) that runs automatically, an optional HomeKit switch (`showSilentSwitch: true`) for Goodnight scenes and irregular schedules, or both together. The switch takes priority when toggled manually; the schedule runs as a background default. Any existing Silent Hours switch from earlier versions is automatically removed unless `showSilentSwitch` is enabled.
-- **Light sensor** (`showLight`) added as opt-in — confirmed via live testing that the characteristic returns a static value regardless of lighting conditions.
-- **`showSilentSwitch`**, **`showHumidity`** and **`showLight`** grouped under "Optional Sensors" in the Homebridge UI config for a cleaner settings experience.
-- **`displayName`** added to `package.json` — shows correctly as "Vent-Axia Svara / Pax Calima" in the Homebridge UI.
-- Sensor characteristic only read when at least one optional sensor is enabled — slightly leaner poll cycle for most users.
-- Silent Hours written to fan on every poll — stays in sync after power cuts.
-
-### 2.4.2
-- Humidity sensor disabled by default — opt-in via `showHumidity: true`
-- README rewritten with a more human tone
-
-### 2.4.1
-- Fixed sensors returning stale values — reverted to connect→read→disconnect per poll
-
-### 2.4.0
-- Rebuilt with persistent connection architecture
-
-### 2.3.x / 2.2.1 / 2.1.0
-- Correct sensor UUIDs and byte mappings confirmed via live device testing
-- Homebridge 2.0 initialisation fixes; duplicate accessory registration resolved
-
-### 1.0.x
-- Initial releases
+Homebridge verification remains an aim. The supplied logo is bundled for the icon request; Homebridge controls verified status and icon display. See [verification preparation](docs/VERIFICATION.md).

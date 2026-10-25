@@ -1,0 +1,151 @@
+'use strict';
+const test = require('node:test'), assert = require('node:assert/strict');
+const { EventEmitter } = require('node:events');
+const { pathToFileURL } = require('node:url');
+const path = require('node:path');
+const {hap,entry} = require('./homebridge');
+const { FanAccessory } = require('../lib/accessory');
+const { createPlatform } = require('../lib/platform');
+const { Transport } = require('../lib/transport');
+const { fakeRadio } = require('./helpers');
+let homebridge;
+const mac='58:2b:db:11:22:33';
+const fan={name:'Kitchen Fan',mac,pin:'00123456'};
+test.before(async()=>{
+  const {PlatformAccessory}=await import(pathToFileURL(path.join(path.dirname(entry),'platformAccessory.js')));
+  homebridge={hap,platformAccessory:PlatformAccessory};
+});
+function fixture(t,config={}) {
+  const r=fakeRadio(),logs=[],platform={config,log:{info:v=>logs.push(v),warn:v=>logs.push(v)},transport:new Transport(r.noble,50),save:()=>{}};
+  const a=new homebridge.platformAccessory('Kitchen Fan',hap.uuid.generate('pax-calima-'+mac),hap.Categories.FAN);a.context.mac=mac;
+  const h=new FanAccessory(platform,homebridge,a,fan);
+  t.after(()=>{h.close();platform.transport.close();});
+  return {r,platform,a,h,logs};
+}
+async function get(service,type) { return service.getCharacteristic(type).handleGetRequest(); }
+async function set(service,type,value) { return service.getCharacteristic(type).handleSetRequest(value); }
+const C=hap.Characteristic,S=hap.Service;
+
+test('native Home services expose working boost/pause with mutually exclusive readback',async t=>{
+  const {r,h}=fixture(t);await h.poll();
+  assert.equal(await get(h.boostService,C.On),false);assert.equal(await get(h.pauseService,C.On),false);
+  await set(h.boostService,C.On,true);
+  assert.equal(await get(h.boostService,C.On),true);assert.equal(await get(h.pauseService,C.On),false);
+  assert.equal(r.values.manual.readUInt16LE(1),2000);assert.equal(r.values.manual.readUInt16LE(3),600);
+  await set(h.pauseService,C.On,true);
+  assert.equal(r.values.manual.toString('hex'),'0100005802');assert.equal(await get(h.boostService,C.On),false);
+  assert.equal(await get(h.pauseService,C.On),true);assert.equal(await get(h.fanService,C.Active),0);
+  // A delayed Boost-off after Pause-on must not cancel Pause.
+  const count=r.writes.length;await set(h.boostService,C.On,false);
+  assert.equal(r.writes.length,count+1); // authentication only
+  assert.equal(await get(h.pauseService,C.On),true);
+  await set(h.pauseService,C.On,false);assert.equal(r.values.manual.toString('hex'),'0000000000');
+  assert.equal(await get(h.pauseService,C.On),false);
+  assert.ok(r.writes.every(w=>['auth','manual'].includes(w.name)));
+});
+test('restart reads a live manual pause; native expiry clears switches without writes',async t=>{
+  const {r,h}=fixture(t);r.values.manual=Buffer.from('0100000d00','hex');r.values.status.writeUInt16LE(0,6);
+  await h.poll();assert.equal(await get(h.pauseService,C.On),true);
+  r.values.manual=Buffer.from('00dc050000','hex');r.values.status.writeUInt16LE(1000,6);
+  const count=r.writes.length;await h.poll();
+  assert.equal(await get(h.pauseService,C.On),false);assert.equal(await get(h.boostService,C.On),false);
+  assert.equal(await get(h.fanService,C.Active),1);assert.equal(r.writes.length,count+1);
+});
+test('speed slider writes temporary manual control and reports measured speed',async t=>{
+  const {r,h}=fixture(t,{boostMinutes:5});await h.poll();
+  await set(h.fanService,C.RotationSpeed,60);assert.equal(r.values.manual.readUInt16LE(1),1500);
+  assert.equal(r.values.manual.readUInt16LE(3),300);
+  await h.poll();assert.equal(await get(h.fanService,C.RotationSpeed),41);
+  await h.speed(1);assert.equal(r.values.manual.readUInt16LE(1),1000);
+  await h.speed(0);assert.equal(await get(h.pauseService,C.On),true);
+  await set(h.fanService,C.Active,1);assert.equal(await get(h.pauseService,C.On),false);
+  assert.ok(r.writes.every(w=>['auth','manual'].includes(w.name)));
+  for(const v of [-1,101,NaN,Infinity,'60']) assert.throws(()=>h.speed(v));
+});
+test('auth rejection and rejected readback return HomeKit failures; no fake successful command',async t=>{
+  const {r,h,logs}=fixture(t);r.values.confirmation=Buffer.from([0]);
+  await assert.rejects(set(h.boostService,C.On,true));
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,0);await assert.rejects(get(h.boostService,C.On));
+  r.values.confirmation=Buffer.from([1]);
+  r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.manual).writeAsync=async()=>{};
+  await assert.rejects(set(h.boostService,C.On,true));await assert.rejects(get(h.boostService,C.On));
+  assert.ok(logs.some(v=>v.includes('COMMAND_NOT_CONFIRMED')));
+  assert.ok(logs.every(v=>!v.includes(fan.pin)));
+});
+test('invalid RPM and stale telemetry are communication faults, not plausible speed percentages',async t=>{
+  const {r,h}=fixture(t);await h.poll();
+  r.values.status.writeUInt16LE(50237,6);await h.poll();await assert.rejects(get(h.fanService,C.RotationSpeed));
+  r.values.status.writeUInt16LE(1000,6);await h.poll();assert.equal(await get(h.fanService,C.RotationSpeed),40);
+  h.last.at-=45001;await assert.rejects(get(h.fanService,C.Active));
+});
+test('fresh mode gate refuses commands without writing mode or manual state',async t=>{
+  const {r,h}=fixture(t);r.values.mode=Buffer.from([4]);
+  await assert.rejects(set(h.pauseService,C.On,true));
+  assert.equal(r.writes.filter(w=>w.name!=='auth').length,0);
+});
+test('changed native schedule is applied once; app edits survive polling and restart',async t=>{
+  const config={silentHoursStart:'23:00',silentHoursEnd:'07:00',showSilentSwitch:true};
+  const {r,h,a,platform}=fixture(t,config);let saves=0;platform.save=()=>{saves++;};
+  await h.poll();assert.equal(r.values.silent.toString('hex'),'0117000700');assert.equal(saves,1);
+  r.values.silent=Buffer.from('0016000600','hex');await h.poll();assert.equal(r.values.silent.toString('hex'),'0016000600');
+  assert.equal(await get(h.silentService,C.On),false);
+  await set(h.silentService,C.On,true);assert.equal(r.values.silent.toString('hex'),'0116000600');
+  h.close();const restarted=new FanAccessory(platform,homebridge,a,fan);t.after(()=>restarted.close());
+  await restarted.poll();assert.equal(r.values.silent.toString('hex'),'0116000600');
+  assert.equal(r.writes.filter(w=>w.name==='silent').length,2);
+});
+test('legacy services migrate with stable fan UUID/subtype and no duplicates',async t=>{
+  const {h,a,platform}=fixture(t);h.close();
+  const uuid=a.UUID, original=a.getService(S.Fanv2);
+  a.addService(new S.StatelessProgrammableSwitch('Kitchen Boost','boost'));
+  a.addService(new S.TemperatureSensor('Kitchen Temperature','temperature'));
+  a.addService(new S.HumiditySensor('Kitchen Humidity','humidity'));
+  a.addService(new S.LightSensor('Kitchen Light','light'));
+  const next=new FanAccessory(platform,homebridge,a,fan);t.after(()=>next.close());
+  assert.equal(a.UUID,uuid);assert.equal(next.fanService,original);
+  for(const type of [S.StatelessProgrammableSwitch,S.TemperatureSensor,S.HumiditySensor,S.LightSensor])assert.equal(a.getService(type),undefined);
+  assert.equal(a.services.filter(s=>s.UUID===S.Switch.UUID).length,2);
+  assert.equal(a.getServiceById(S.Switch,'boost'),next.boostService);
+});
+test('unconfigured platform has no Bluetooth work; cached fan remains faulted',async t=>{
+  let radioUsed=false;const r=fakeRadio();r.noble.startScanning=()=>{radioUsed=true;};
+  const api=new EventEmitter();api.registerPlatformAccessories=()=>{throw Error('unexpected registration');};
+  const P=createPlatform(homebridge,{noble:r.noble});const p=new P({warn:()=>{}},{},api);t.after(()=>p.shutdown());
+  const a=new homebridge.platformAccessory('Existing Fan',hap.uuid.generate('cached'),hap.Categories.FAN);a.context.mac=mac;
+  p.configureAccessory(a);api.emit('didFinishLaunching');assert.equal(radioUsed,false);assert.equal(p.transport,null);
+  assert.equal(p.handlers.length,1);await assert.rejects(get(p.handlers[0].fanService,C.Active));
+});
+test('launch handles only configured addresses and keeps cached identities',async t=>{
+  const r=fakeRadio(),api=new EventEmitter(),registered=[],logs=[];
+  api.registerPlatformAccessories=(plugin,alias,list)=>registered.push(...list);api.updatePlatformAccessories=()=>{};
+  const P=createPlatform(homebridge,{noble:r.noble});const p=new P({warn:v=>logs.push(v),info:()=>{},error:()=>{}},{fans:[{name:'Old',pin:'123456'},fan]},api);t.after(()=>p.shutdown());
+  const a=new homebridge.platformAccessory('Kitchen Fan',hap.uuid.generate('pax-calima-'+mac),hap.Categories.FAN);a.context.mac=mac;
+  p.configureAccessory(a);api.emit('didFinishLaunching');api.emit('didFinishLaunching');
+  assert.equal(p.handlers.length,1);assert.equal(registered.length,0);assert.equal(p.handlers[0].accessory,a);
+  assert.ok(logs.some(v=>v.includes('FAN_ADDRESS_REQUIRED')));
+  r.noble.emit('error',Error('secret backend info'));assert.equal(p.handlers[0].fault,true);
+  api.emit('shutdown');assert.equal(r.noble.listenerCount('stateChange'),0);assert.equal(r.noble.listenerCount('error'),0);
+});
+test('overlapping poll, boost and pause requests are all executed in order',async t=>{
+  const {r,h}=fixture(t);await Promise.all([h.poll(),h.manual('boost',true),h.manual('pause',true)]);
+  assert.deepEqual(r.writes.filter(w=>w.name==='manual').map(w=>w.value.readUInt16LE(1)),[2000,0]);
+  assert.equal(await get(h.pauseService,C.On),true);assert.equal(await get(h.boostService,C.On),false);
+});
+test('failed schedule verification does not persist an applied marker',async t=>{
+  const {r,h,a}=fixture(t,{silentHoursStart:'23:00',silentHoursEnd:'07:00'});
+  r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.silent).writeAsync=async()=>{};
+  await h.poll();assert.equal(a.context.appliedSchedule,undefined);await assert.rejects(get(h.fanService,C.Active));
+});
+test('hiding optional controls preserves the active device action',async t=>{
+  const {r,h,a,platform}=fixture(t);r.values.manual=Buffer.from('0100000d00','hex');await h.poll();h.close();
+  const count=r.writes.length;platform.config={showBoostSwitch:false,showPauseSwitch:false};
+  const hidden=new FanAccessory(platform,homebridge,a,fan);t.after(()=>hidden.close());await hidden.poll();
+  assert.equal(a.getServiceById(S.Switch,'boost'),undefined);assert.equal(a.getServiceById(S.Switch,'pause'),undefined);
+  assert.equal(hidden.last.manual.state,'pause');assert.equal(r.writes.length,count+1);
+});
+test('a rejected PIN stops unattended retries; an explicit successful command restores polling',async t=>{
+  const {r,h}=fixture(t);r.values.confirmation=Buffer.from([0]);await h.poll();
+  const count=r.writes.length;await h.poll();assert.equal(r.writes.length,count);assert.equal(h.authRejected,true);
+  r.values.confirmation=Buffer.from([1]);await set(h.boostService,C.On,true);
+  assert.equal(h.authRejected,false);assert.ok(h.pollTimer);assert.equal(await get(h.boostService,C.On),true);
+});

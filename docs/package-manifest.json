@@ -1,0 +1,96 @@
+[
+  {
+    "id": "homebridge-pax-calima@2.5.0",
+    "name": "homebridge-pax-calima",
+    "version": "2.5.0",
+    "size": 67037,
+    "unpackedSize": 111136,
+    "shasum": "7848c06ff89f75a32819801c16e88d1d846a6f40",
+    "integrity": "sha512-VByDBLgLbr85ngI5bD1xWBusvUZFoOINEaOk1KmPQXR7LFZxSYG6iQikYde7cT7RSEkru5qLFU3w2zN/Hy1idg==",
+    "filename": "homebridge-pax-calima-2.5.0.tgz",
+    "files": [
+      {
+        "path": "CHANGELOG.md",
+        "size": 2974,
+        "mode": 420
+      },
+      {
+        "path": "LICENSE",
+        "size": 10172,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 6358,
+        "mode": 420
+      },
+      {
+        "path": "RELEASE_NOTES.md",
+        "size": 3175,
+        "mode": 420
+      },
+      {
+        "path": "assets/homebridge-pax-calima.png",
+        "size": 4240,
+        "mode": 420
+      },
+      {
+        "path": "assets/README.md",
+        "size": 603,
+        "mode": 420
+      },
+      {
+        "path": "assets/vent-axia.png",
+        "size": 46913,
+        "mode": 384
+      },
+      {
+        "path": "config.schema.json",
+        "size": 4164,
+        "mode": 420
+      },
+      {
+        "path": "docs/VALIDATION.md",
+        "size": 4888,
+        "mode": 420
+      },
+      {
+        "path": "docs/VERIFICATION.md",
+        "size": 4490,
+        "mode": 420
+      },
+      {
+        "path": "index.js",
+        "size": 201,
+        "mode": 420
+      },
+      {
+        "path": "lib/accessory.js",
+        "size": 8547,
+        "mode": 420
+      },
+      {
+        "path": "lib/platform.js",
+        "size": 4733,
+        "mode": 420
+      },
+      {
+        "path": "lib/protocol.js",
+        "size": 3701,
+        "mode": 420
+      },
+      {
+        "path": "lib/transport.js",
+        "size": 4461,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 1516,
+        "mode": 420
+      }
+    ],
+    "entryCount": 16,
+    "bundled": []
+  }
+]
