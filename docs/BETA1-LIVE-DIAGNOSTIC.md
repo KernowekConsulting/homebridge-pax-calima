@@ -47,7 +47,7 @@ Local hotfix changes (not yet a published npm release):
 - Await acknowledged scan stop before connecting or handing the radio to the next session.
 - Supply explicit ConfiguredName values for Boost and Pause and identify each accessory in recovery/error logs.
 
-All 44 tests pass across Node 22/24 and Homebridge 1/2. These include stalled-disconnect recovery, failure to recover, dropped connections, acknowledged scan stop, scan-stop timeout, transient background failures with a strict freshness limit, automatic command retries, supersession, restart persistence and lost-confirmation timer preservation.
+All 46 tests pass across Node 22/24 and Homebridge 1/2. These include stalled-disconnect recovery, failure to recover, dropped connections, acknowledged scan stop, scan-stop timeout, transient background failures with a strict freshness limit, automatic command retries, supersession, restart persistence, lost-confirmation timer preservation and protected writes after authentication processing.
 
 Both modified files were hash checked against locally tested source before deployment. SvaraHome's child bridge alone was restarted to activate each hotfix stage. No whole-Pi reboot or fan control/configuration command was issued by the diagnostic workflow. Existing configured quiet-hours behaviour remains part of normal plugin polling.
 
@@ -59,8 +59,8 @@ The owner subsequently confirmed Wetroom's saved PIN was incorrect and was direc
 
 Final deployed hotfix source fingerprints:
 
-- `lib/transport.js`: `8a5e01032a6ed90845d8496c58c4fd74644e98cafba19a2801ac5fff869846af`
-- `lib/accessory.js`: `1319bdbff06c6354ffd1bd40a8299170c3bf6344f4dff8817a83aa7872a4fedb`
+- `lib/transport.js`: `5c4220af7c69629859427b0250e248ae6359353286eacbe635c710ccbc9ae051`
+- `lib/accessory.js`: `eecf76a830a55fceffdcb140dcee5b94226fcfdfc909db710d7ec4cd4e33c01c`
 
 The child bridge restart was requested after the second source update; final live verification remains pending after the owner's configuration edit.
 
@@ -71,3 +71,13 @@ A subsequent 45-second passive observation saw successful connections alongside 
 The final hotfix also retains the last verified snapshot during retryable background-poll failures only while it is under 45 seconds old. Authentication failures, invalid telemetry and failed user commands still fault immediately. No optimistic command success is introduced. Final accessory source was hash checked and activated by terminating only the confirmed SvaraHome child process via a pidfd; Homebridge supervises its restart. This last update supersedes the accessory fingerprint used for the 09:40:43 check above.
 
 The owner then explicitly required pending Boost requests to retry patiently while tiles remain truthful. The working change persists the newest manual request in accessory context and retries transient failures every ten seconds after each failed attempt, across child restarts. A newer manual command supersedes it before any older queued write. Rejected authentication, invalid data and unsupported modes stop retries. Siri's own timeout cannot be extended by the plugin: Siri may report failure while the request remains pending, and a pending request can start when connectivity returns later. Users cancel pending Boost/Pause by switching that control off. Lost write responses are reconciled before resending so an already-running timer is not repeatedly extended. HAP's requested speed cache is replaced with measured readback after the set callback. The accessory fingerprint above now refers to this pending-command revision; live activation and its outcome are recorded below when complete.
+
+## HomeKit switch trials after pending-retry activation
+
+Revision c8142f1 was hash checked and activated at 12:25. Both fans subsequently appeared On with both overrides Off in Homebridge's HAP accessory UI.
+
+- Kitchen Boost: request became pending at 12:28:37, later showed Boost On with measured speed 96%; switching Boost Off returned it to automatic ventilation.
+- Kitchen Pause: request became pending at 12:30:00, later showed Pause On, Active 0, measured speed 0%, CurrentFanState Idle. Switching Pause Off returned the fan to On with both switches Off.
+- Wetroom Boost at configured 2450 RPM: request became pending at 12:31:49, repeatedly returned COMMAND_NOT_CONFIRMED, and readback showed Pause On rather than Boost. A Pause Off command superseded the pending request; the subsequent cache inspection showed no pending request for either fan. This is a failed compatibility test, not a successful Boost result.
+
+The working revision now stops retries after an explicitly different valid control readback and records requested/received manual state, RPM and seconds for diagnosis. Transport errors and lost responses remain retryable. A 200 ms authentication processing interval is being tested, based on the upstream [WhisperBridge Svara implementation](https://garethcooke.github.io/WhisperBridge/). Its documentation reports silently ignored command writes without this interval; applicability to the owner's older fan remains a hypothesis until live testing.

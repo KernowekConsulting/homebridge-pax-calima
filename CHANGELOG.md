@@ -8,9 +8,10 @@
 - Confirm the fan's state before showing an action as active. Check uncertain writes before retrying, preserving an already-running timer.
 - Restore measured speed after HomeKit caches a requested slider position.
 - Retry stalled disconnects and wait for scanning to stop before connecting.
+- Allow a short authentication processing interval before protected controls and log differing manual readback without exposing PINs.
 - Retain a recent verified reading during a missed background poll, within the existing 45-second freshness limit.
 - Add explicit Boost/Pause tile names and identify the fan in communication logs.
-- Stop retries for rejected authentication, invalid data or unsupported operating modes. Siri can still time out before Bluetooth recovers; a pending request continues until confirmed, replaced or stopped by one of these faults.
+- Stop retries for rejected authentication, invalid data, explicitly different control readback or unsupported operating modes. Siri can still time out before Bluetooth recovers; a pending request continues until confirmed, replaced or stopped by one of these faults.
 
 ## 2.5.0-beta.1 — Boost and Pause
 

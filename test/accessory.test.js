@@ -16,7 +16,7 @@ test.before(async()=>{
   homebridge={hap,platformAccessory:PlatformAccessory};
 });
 function fixture(t,config={}) {
-  const r=fakeRadio(),logs=[],platform={config,log:{info:v=>logs.push(v),warn:v=>logs.push(v)},transport:new Transport(r.noble,50),save:()=>{}};
+  const r=fakeRadio(),logs=[],platform={config,log:{info:v=>logs.push(v),warn:v=>logs.push(v)},transport:new Transport(r.noble,50,0),save:()=>{}};
   const a=new homebridge.platformAccessory('Kitchen Fan',hap.uuid.generate('pax-calima-'+mac),hap.Categories.FAN);a.context.mac=mac;
   const h=new FanAccessory(platform,homebridge,a,fan);
   t.after(()=>{h.close();platform.transport.close();});
@@ -72,6 +72,7 @@ test('auth rejection and rejected readback return HomeKit failures; no fake succ
   r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.manual).writeAsync=async()=>{};
   await assert.rejects(set(h.boostService,C.On,true));await assert.rejects(get(h.boostService,C.On));
   assert.ok(logs.some(v=>v.includes('COMMAND_NOT_CONFIRMED')));
+  assert.equal(h.intent,null);assert.equal(h.intentTimer,null);
   assert.ok(logs.every(v=>!v.includes(fan.pin)));
 });
 test('invalid RPM and stale telemetry are communication faults, not plausible speed percentages',async t=>{

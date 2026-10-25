@@ -95,3 +95,17 @@ test('unacknowledged scan stop cannot start a connection',async()=>{
   await assert.rejects(t.run(mac,pin,async()=>{}),/SCAN_STOP_FAILED/);
   assert.equal(r.events.includes('connect'),false);assert.equal(r.writes.length,0);t.close();
 });
+test('protected writes wait for the fan to process acknowledged authentication',async()=>{
+  const r=fakeRadio(),t=new Transport(r.noble,50,15);let ready=false;
+  const auth=r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.auth),write=auth.writeAsync;
+  auth.writeAsync=async(...args)=>{await write(...args);setTimeout(()=>{ready=true;},5);};
+  await t.run(mac,pin,async io=>{assert.equal(ready,true);await io.write('manual',Buffer.alloc(5));});
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,1);t.close();
+});
+test('shutdown during authentication processing does not execute the action',async()=>{
+  const r=fakeRadio(),t=new Transport(r.noble,50,15);let called=false;
+  const auth=r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.auth),write=auth.writeAsync;
+  auth.writeAsync=async(...args)=>{await write(...args);setTimeout(()=>t.close(),5);};
+  await assert.rejects(t.run(mac,pin,async()=>{called=true;}),/BLE_UNAVAILABLE/);
+  assert.equal(called,false);assert.equal(r.writes.filter(w=>w.name!=='auth').length,0);
+});
