@@ -1,35 +1,31 @@
-# SvaraHome 2.5.0-beta.3 — Everyday fan controls
+# SvaraHome 2.5.0 — Your fan, at home
 
-A boost when you need it. A pause when you want it. One familiar way back to normal.
+A boost when you need it. A quiet moment when you want one. An easy way back to normal.
 
-## Fan, with an optional extra
+SvaraHome brings timed fan controls into Apple Home for Pax Calima and Vent-Axia Svara.
 
-The default controls are now **Fan** and **Boost Fan**. **Pause Fan** remains available as an optional switch for status and automation.
+## Familiar controls
 
-In the Kitchen, try:
+**Fan** is your everyday control. Turn it off for a timed pause; turn it on to return to automatic ventilation, whether the fan was paused or boosted.
 
-- “Siri, turn on Boost Fan in the kitchen.”
-- “Siri, turn off the kitchen fan.”
-- “Siri, turn on the kitchen fan.”
+**Boost Fan** gives ventilation a temporary lift at your chosen speed. Its timer returns the fan to automatic operation, even if Homebridge disconnects. Turn Boost Fan off to return sooner.
 
-Turning Fan off starts a timed pause. Turning Fan on returns either Pause or Boost to automatic ventilation. Boost Fan off also cancels a boost early. Automatic ventilation follows the fan's own rules, so resuming does not force a motor that would otherwise be idle.
+Try “Siri, turn on Boost Fan in the kitchen”, using the names and rooms in your Home. A separate **Pause Fan** switch is optional for status and automations.
 
-**Fan Off is temporary.** The fan resumes automatically when its own Pause timer ends, even if Homebridge disconnects. The default is 10 minutes; choose your preferred duration in Plugin Config. Apple Home's Off label does not explain that timer.
+The speed slider now starts a temporary session, leaving your saved ventilation speed presets in place. Each fan can have its own requested-speed limit.
 
-## Upgrading
+## Clearer feedback, less maintenance
 
-Existing fan identities and room assignments are retained. An explicitly enabled Pause switch stays enabled; turn off **Show Pause Fan in Apple Home** if you want the simpler layout. Check scenes before hiding a switch, as hiding removes that service.
+Controls follow the fan’s confirmed state and measured speed. Temporary Bluetooth interruptions are retried; a newer command replaces a waiting request. Siri may time out before recovery, and a waiting request can run when the fan reconnects.
 
-The controls now advertise Boost Fan and Pause Fan. Apple Home may retain a customised tile name; rename it there if necessary. No factory reset or re-pairing is required.
+Quiet-hours schedules are saved when you change their times. Later schedule changes in the official app are respected.
 
-Pending requests, readback confirmation and per-fan speed limits continue from beta.2. Fan On can now replace a waiting request with return-to-automatic, including across a child-bridge restart. Failed commands report a communication fault rather than an assumed success; Siri may still time out before Bluetooth recovers.
+## Before you upgrade
 
-## Links and validation
+- Give every fan its own Bluetooth address and correct six- or eight-digit PIN in Plugin Config. Close the official app while Homebridge connects.
+- Fan Off is temporary: ventilation resumes when the Pause timer ends. The default is 10 minutes; choose your preferred duration in Plugin Config.
+- Existing fan identities and room assignments are retained. Check scenes that used the old Boost event service, which is replaced by the working Boost Fan switch.
+- Temperature, humidity and light tiles are removed because they were not verified ambient measurements.
+- Use Node 22.12 or later within Node 22, or Node 24, with Homebridge 1.8+ or 2. After saving configuration, use Restart Child Bridge on SvaraHome’s plugin card.
 
-The homepage remains the [SvaraHome website](https://homebridge.svarahome.kernowekconsulting.co.uk). The GitHub issue-tracker link is restored so Homebridge can discover release notes. Linked redacted evidence is included in the package.
-
-Homebridge's Plugin Homepage button still reads the stable release's metadata; its correction is held for full 2.5.0 as agreed. This beta does not change the stable channel.
-
-Automated tests cover the new native Homebridge controls, migration, return-to-automatic and recovery. Earlier live fan evidence covers the underlying Boost, Pause and cancellation commands. Exact Siri recognition and the new presentation remain acceptance checks in your Home.
-
-Homebridge verification remains pending.
+Setup guidance and support are at the [SvaraHome website](https://homebridge.svarahome.kernowekconsulting.co.uk).

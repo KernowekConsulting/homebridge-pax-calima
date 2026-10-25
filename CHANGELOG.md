@@ -1,104 +1,16 @@
 # Changelog
 
-[Release notes](RELEASE_NOTES.md) describe the proposed update. Beta entries are consolidated into the stable release when it is promoted; beta history remains in GitHub prereleases and tags.
+## 2.5.0 — Unreleased
 
-## 2.5.0-beta.3 — Everyday fan controls
-
-- Show Fan and Boost Fan by default, with Pause Fan optional. Preserve explicitly enabled Pause settings and existing fan/service identities.
-- Use Fan Off for a timed pause and Fan On to return either Boost or Pause to automatic ventilation. Return-to-automatic requests supersede older pending commands and retry temporary failures across restarts.
-- Rename auxiliary controls to Boost Fan and Pause Fan, and explain the intended room-based Siri phrases. Apple Home may retain a user's customised names.
-- Explain that Fan Off resumes automatically after the configured Pause duration; it is not a permanent shutdown.
-- Add native Homebridge-service tests for defaults, migration, universal resume, retry persistence and truthful failures.
-
-
-- Retain the SvaraHome website as the homepage and restore the current GitHub issues URL as the issue tracker, so Homebridge can resolve GitHub release notes.
-- Include the redacted live evidence referenced by the packaged documentation.
-- Make the actual Homebridge homepage button, release notes and stable npm metadata explicit promotion checks. Beta.2 remains unchanged; its homepage already points to the new site.
-
-## 2.5.0-beta.2 — Patient requests, truthful tiles
-
-- Keep Boost, Pause and speed requests pending through temporary Bluetooth failures, including child-bridge restarts. A newer manual command replaces the pending request.
-- Confirm the fan's state before showing an action as active. Check uncertain writes before retrying, preserving an already-running timer.
-- Restore measured speed after HomeKit caches a requested slider position.
-- Retry stalled disconnects and wait for scanning to stop before connecting.
-- Allow a short authentication processing interval before protected controls and log differing manual readback without exposing PINs.
-- Retain a recent verified reading during a missed background poll, within the existing 45-second freshness limit.
-- Add explicit Boost/Pause tile names and identify the fan in communication logs.
-- Add an optional speed-target limit for each fan, covering Boost and the Home speed slider. This accommodates the owner's older Wetroom fan, which accepts 2400 RPM and returns zero RPM for a 2450 RPM request, while retaining Kitchen's existing setting.
-- Stop retries for rejected authentication, invalid data, explicitly different control readback or unsupported operating modes. Siri can still time out before Bluetooth recovers; a pending request continues until confirmed, replaced or stopped by one of these faults.
-
-- Point the plugin website and support links to the new [SvaraHome site](https://homebridge.svarahome.kernowekconsulting.co.uk).
-- Confirm live Boost, Pause and cancellation on both fans, plus capped slider control on Wetroom. All 48 automated tests pass across Node 22/24 and Homebridge 1/2 for the control implementation.
-
-## 2.5.0-beta.1 — Boost and Pause
-
-### SvaraHome
-
-- Introduced the SvaraHome name across the plugin listing, setup guidance and release copy.
-- Added the approved layered house-and-fan logo and prepared a Homebridge icon.
-- Retained the existing package identifier and fan accessory identities for upgrade continuity.
-
-### Everyday controls
-
-- Added timed Boost and Pause switches, shown by default with individual visibility settings.
-- Added early return to automatic ventilation and readback after control commands.
-- Used the fan’s native timer so temporary actions can finish while Homebridge is disconnected.
-- Changed the speed slider to temporary manual control, preserving persistent speed presets.
-- Made Boost and Pause mutually exclusive and prevented an inactive switch-off from cancelling the other action.
-- Restricted manual controls to operating mode 00 without changing installation settings.
-
-### Bluetooth and telemetry
-
-- Added explicit address/PIN routing and validation for six- and eight-digit PINs.
-- Required confirmed authentication and stopped unattended retries after a rejected PIN.
-- Queued Bluetooth sessions across fans and added bounded operations, connection cleanup and late-connection recovery handling.
-- Reported communication failures for unconfirmed commands, stale telemetry and invalid readings.
-- Reconciled the fan’s current override through polling and after restart.
-
-### Setup and upgrades
-
-- Replaced the non-actionable Boost event service.
-- Removed unsupported temperature, humidity and light services.
-- Applied changed quiet-hours schedules once, preserving later official-app edits.
-- Updated configuration guidance and supported Node versions.
-- Added 32 automated tests covering protocol handling, native Homebridge services, configuration, queues, recorded telemetry and the maintained Bluetooth library’s real classes.
-
-### Dependency security
-
-- Replaced the old Bluetooth dependency with the maintained Noble fork, removing the vulnerable archive and native-build dependency chain.
-- Confirmed zero reported vulnerabilities in fresh full and production audits, including a separately resolved Linux ARM64 production tree.
-- Added high/critical audit gates and a native-module load check to CI.
-
-### Beta validation
-
-- Automated tests passed across Node 22/24 and Homebridge 1/2.
-- Verified isolated native Linux ARM64 installation/loading on the Pi under Node 22/24, without initialising Bluetooth or changing the running bridge.
-- Live plugin deployment and older-fan authentication remain outstanding.
-- Homebridge verification remains pending.
-
-## 2.4.5
-
-- Replaced the removed Silent Hours service lookup with `getServiceById` for Homebridge 2 compatibility.
-- Reported live validation on Homebridge 2.4.0 and Node 24.19.0.
-
-## 2.4.4
-
-- Improved Silent Hours time-field hints and invalid-time warnings.
-
-## 2.4.3
-
-- Added schedule configuration, an optional Silent Hours switch and optional light sensor exposure.
-- Added plugin display metadata and reorganised settings.
-- Wrote Silent Hours during every poll. This behaviour is replaced in 2.5.0.
-
-## 2.4.2
-
-- Disabled the optional humidity tile by default and rewrote setup guidance.
-
-## 2.4.1 / 2.4.0
-
-- Revised Bluetooth connection handling and polling.
-
-## Earlier releases
-
-- Added initial Bluetooth integration, Homebridge lifecycle changes and fan services. Earlier sensor interpretations are corrected in 2.5.0.
+- Introduce **SvaraHome**, with a new name and house-and-fan identity.
+- Add a working **Boost Fan** switch for timed extra ventilation and early cancellation.
+- Make **Fan Off** a timed pause and **Fan On** a return to automatic ventilation from either Pause or Boost. Offer **Pause Fan** as an optional separate control.
+- Use the fan’s own timer so temporary actions can end while Homebridge is disconnected.
+- Make the speed slider control a temporary session, preserving saved ventilation speed presets. Add an optional requested-speed limit for each fan.
+- Show confirmed control state and measured speed, with communication faults for failed commands or stale/invalid readings.
+- Retry temporary Bluetooth failures and retain the newest waiting request across child-bridge restarts. A newer command replaces it; rejected authentication and incompatible responses stop retries.
+- Require each fan’s address and its own six- or eight-digit PIN, with authentication confirmed before controls.
+- Save changed quiet-hours schedules once and preserve later edits made in the official app.
+- Remove unsupported temperature, humidity and light tiles, and replace the old event-only Boost service. Retain fan accessory identities and room assignments.
+- Support Node 22/24 with Homebridge 1/2.
+- Provide setup guidance through the [SvaraHome website](https://homebridge.svarahome.kernowekconsulting.co.uk).
