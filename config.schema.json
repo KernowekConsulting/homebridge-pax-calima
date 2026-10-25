@@ -8,7 +8,7 @@
       "name": {
         "title": "Plugin name",
         "type": "string",
-        "default": "Pax Calima / Vent-Axia Svara"
+        "default": "SvaraHome"
       },
       "fans": {
         "title": "Your fans",

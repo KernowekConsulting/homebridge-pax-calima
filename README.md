@@ -1,8 +1,8 @@
-# Vent-Axia Svara / Pax Calima for Homebridge
+# SvaraHome for Homebridge
 
 Give the fan a boost. Pause it for a quiet moment. Let it return to normal when the time is up.
 
-Local Bluetooth control for Pax Calima and Vent-Axia Svara fans in Apple Home. No cloud account is needed.
+SvaraHome brings local Bluetooth control for Pax Calima and Vent-Axia Svara fans in Apple Home. No cloud account is needed.
 
 ## Set up your fan
 
@@ -13,7 +13,7 @@ Use Node 22.12 or later within Node 22, or Node 24, with Homebridge 1.8+ or 2. A
 ```json
 {
   "platform": "PaxCalima",
-  "name": "Vent-Axia Svara / Pax Calima",
+  "name": "SvaraHome",
   "fans": [
     { "name": "Kitchen Fan", "mac": "58:2b:db:12:34:56", "pin": "00123456" }
   ],
@@ -66,4 +66,4 @@ Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established
 
 The 2.5.0 implementation has automated protocol, queue and native Homebridge-service tests, including replay of recorded telemetry. It has not yet been deployed or tested end to end in Apple Home. See [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md).
 
-Homebridge verification remains an aim. The supplied logo is bundled for the icon request; Homebridge controls verified status and icon display. See [verification preparation](docs/VERIFICATION.md).
+Homebridge verification remains an aim. The SvaraHome logo is bundled for the icon request; Homebridge controls verified status and icon display. See [verification preparation](docs/VERIFICATION.md).

@@ -25,7 +25,7 @@
 - Preserved fan accessory identities while replacing the non-actionable Boost event service.
 - Removed unsupported temperature, humidity and light services, correcting the earlier sensor claims.
 - Applied changed native quiet-hours schedules once and preserved later app edits; read back the schedule switch and retained its times when toggled.
-- Updated Plugin Config guidance, repository links and Node support; bundled the supplied Vent-Axia logo and a 100-pixel icon for the verification process.
+- Updated Plugin Config guidance, repository links and Node support; introduced the SvaraHome name, layered house-and-fan artwork and a 100-pixel icon for the verification process.
 - Added automated native Homebridge 1/2, protocol, configuration and queue tests, plus replay of recorded device telemetry. Live deployment and Homebridge verification remain pending.
 
 ## 2.4.5

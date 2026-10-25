@@ -29,7 +29,7 @@ The current requirements name supported Node LTS 22 and 24, a dynamic platform, 
 
 ## Supplied icon
 
-The project owner's original image is retained in `assets/vent-axia.png`. The square 100 × 100 PNG `assets/homebridge-pax-calima.png` matches the form's requested approximate size and format. Its text and blue background were visually checked at that size.
+SvaraHome’s layered blue house-and-fan artwork is retained in `assets/svarahome-master.png`, with a 1024-pixel version in `assets/svarahome.png`. The square 100 × 100 PNG `assets/homebridge-pax-calima.png` matches the form's requested approximate size and format. Its text and blue background were visually checked at that size.
 
 The verification form can include an icon. The separate icon request form requires the plugin to be verified first and the requester to be its developer. Homebridge then registers the icon centrally; adding a logo URL to package metadata alone does not enable the tile. No invented metadata field or verified badge has been added.
 

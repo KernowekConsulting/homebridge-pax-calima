@@ -3,15 +3,15 @@
     "id": "homebridge-pax-calima@2.5.0",
     "name": "homebridge-pax-calima",
     "version": "2.5.0",
-    "size": 67029,
-    "unpackedSize": 111136,
-    "shasum": "4a479abe579a718727f065872b6e414266c2084c",
-    "integrity": "sha512-mpIY+Ej7MKEdoekfD4bhH7kAiuKXtOGsbj3wo5l3Iw5uY3wCzFx3ttvGNrVVNxZEyNjQJB+lrbFwpt3Hibz3nA==",
+    "size": 2051479,
+    "unpackedSize": 2325400,
+    "shasum": "80355660a0dadd2bf0015867014e60cd161748d9",
+    "integrity": "sha512-V43b37+QQcXVVAL5Xp8RqqzuT/TOe/KBY3tItyrUousKDyC8gQRRzv6LYNrfEYbYg4vDR/625EVMj0npN8Xj0A==",
     "filename": "homebridge-pax-calima-2.5.0.tgz",
     "files": [
       {
         "path": "CHANGELOG.md",
-        "size": 2974,
+        "size": 2999,
         "mode": 420
       },
       {
@@ -21,32 +21,37 @@
       },
       {
         "path": "README.md",
-        "size": 6358,
+        "size": 6338,
         "mode": 420
       },
       {
         "path": "RELEASE_NOTES.md",
-        "size": 3175,
+        "size": 3262,
         "mode": 420
       },
       {
         "path": "assets/homebridge-pax-calima.png",
-        "size": 4240,
+        "size": 12696,
         "mode": 420
       },
       {
         "path": "assets/README.md",
-        "size": 603,
+        "size": 1053,
         "mode": 420
       },
       {
-        "path": "assets/vent-axia.png",
-        "size": 46913,
+        "path": "assets/svarahome-master.png",
+        "size": 1323136,
+        "mode": 420
+      },
+      {
+        "path": "assets/svarahome.png",
+        "size": 928958,
         "mode": 420
       },
       {
         "path": "config.schema.json",
-        "size": 4164,
+        "size": 4145,
         "mode": 420
       },
       {
@@ -56,7 +61,7 @@
       },
       {
         "path": "docs/VERIFICATION.md",
-        "size": 4490,
+        "size": 4564,
         "mode": 420
       },
       {
@@ -66,12 +71,12 @@
       },
       {
         "path": "lib/accessory.js",
-        "size": 8547,
+        "size": 8563,
         "mode": 420
       },
       {
         "path": "lib/platform.js",
-        "size": 4733,
+        "size": 4757,
         "mode": 420
       },
       {
@@ -86,11 +91,11 @@
       },
       {
         "path": "package.json",
-        "size": 1516,
+        "size": 1506,
         "mode": 420
       }
     ],
-    "entryCount": 16,
+    "entryCount": 17,
     "bundled": []
   }
 ]

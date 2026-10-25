@@ -1,10 +1,10 @@
-# Vent-Axia Svara / Pax Calima 2.5.0 — Boost and Pause
+# SvaraHome 2.5.0 — Boost and Pause
 
 Draft for release. This build still needs the Pi and Apple Home acceptance checks described below.
 
 A little more airflow when you need it. A quiet moment when you want one.
 
-2.5.0 brings working Boost and Pause controls to Apple Home, with clearer fan state and more careful Bluetooth communication.
+SvaraHome 2.5.0 brings working Boost and Pause controls to Apple Home, with clearer fan state and more careful Bluetooth communication.
 
 ## Boost — then back to normal
 
@@ -32,7 +32,7 @@ The old humidity and light tiles used bytes that describe heat settings, rather 
 
 Your fan accessory keeps its identity. The old Boost event button is replaced, so check any scenes that used it. Each fan must have an address and its own PIN in Plugin Config; the plugin no longer guesses a default PIN.
 
-The supplied Vent-Axia logo is included for Homebridge's verification and icon process. Verification has not yet been granted.
+The plugin now appears as SvaraHome, with a new blue house-and-fan logo prepared for Homebridge’s verification and icon process. Existing fan identities and room names are retained. Verification has not yet been granted.
 
 ## What we have checked
 

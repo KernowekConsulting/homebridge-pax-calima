@@ -1,8 +1,8 @@
 {
   "name": "homebridge-pax-calima",
-  "displayName": "Vent-Axia Svara / Pax Calima",
+  "displayName": "SvaraHome",
   "version": "2.5.0",
-  "description": "Timed Boost and Pause for Pax Calima and Vent-Axia Svara fans in Apple Home, with local Bluetooth control and verified readback.",
+  "description": "SvaraHome brings timed Boost, Pause and local Bluetooth control for Pax Calima and Vent-Axia Svara fans into Apple Home.",
   "main": "index.js",
   "keywords": [
     "homebridge-plugin",
@@ -15,7 +15,8 @@
     "fan",
     "extractor",
     "bathroom",
-    "supports-hap"
+    "supports-hap",
+    "svarahome"
   ],
   "engines": {
     "homebridge": "^1.8.0 || ^2.0.0",
