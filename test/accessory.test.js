@@ -186,7 +186,7 @@ test('HAP requested speed cache is replaced with measured speed after a successf
 test('background retry timer fulfils a pending request without another Home command',async t=>{
   const {h,platform}=fixture(t);t.mock.timers.enable({apis:['setTimeout']});
   const run=platform.transport.run.bind(platform.transport);let calls=0;
-  platform.transport.run=(...args)=>++calls===1?Promise.reject(Error('temporary link loss')):run(...args);
+  platform.transport.run=(...args)=>++calls===1?Promise.reject(new (require('../lib/protocol').FanError)('BLE_UNAVAILABLE')):run(...args);
   await assert.rejects(set(h.boostService,C.On,true));
   t.mock.timers.tick(10000);
   for(let i=0;i<3;i++)await new Promise(resolve=>setImmediate(resolve));

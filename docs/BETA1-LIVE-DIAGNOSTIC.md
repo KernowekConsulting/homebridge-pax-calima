@@ -60,7 +60,7 @@ The owner subsequently confirmed Wetroom's saved PIN was incorrect and was direc
 Final deployed hotfix source fingerprints:
 
 - `lib/transport.js`: `8a5e01032a6ed90845d8496c58c4fd74644e98cafba19a2801ac5fff869846af`
-- `lib/accessory.js`: `b272ad75c3a5bcd3a5d25c955f2a477314e62396b151a6995453dd6d90e893e5`
+- `lib/accessory.js`: `1319bdbff06c6354ffd1bd40a8299170c3bf6344f4dff8817a83aa7872a4fedb`
 
 The child bridge restart was requested after the second source update; final live verification remains pending after the owner's configuration edit.
 
