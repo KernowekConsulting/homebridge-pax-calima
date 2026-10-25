@@ -184,6 +184,15 @@ test('HAP requested speed cache is replaced with measured speed after a successf
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(h.fanService.getCharacteristic(C.RotationSpeed).value,41);
 });
+test('a per-fan validated ceiling caps Boost and slider targets without capping measured telemetry or other fans',async t=>{
+  const limited=fixture(t,{boostRpm:2450});limited.h.fan={...fan,maxManualRpm:2400};
+  await limited.h.manual('boost',true);assert.equal(limited.r.values.manual.readUInt16LE(1),2400);
+  await limited.h.speed(100);assert.equal(limited.r.values.manual.readUInt16LE(1),2400);
+  limited.r.values.status.writeUInt16LE(2475,6);await limited.h.poll();
+  assert.equal(await get(limited.h.fanService,C.RotationSpeed),99);
+  const unrestricted=fixture(t,{boostRpm:2450});await unrestricted.h.manual('boost',true);
+  assert.equal(unrestricted.r.values.manual.readUInt16LE(1),2450);
+});
 test('background retry timer fulfils a pending request without another Home command',async t=>{
   const {h,platform}=fixture(t);t.mock.timers.enable({apis:['setTimeout']});
   const run=platform.transport.run.bind(platform.transport);let calls=0;

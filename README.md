@@ -37,6 +37,8 @@ Name the switches clearly in Home, such as Kitchen Boost and Kitchen Pause. You 
 
 The fan's speed slider starts a temporary manual session using the Boost duration. Nonzero targets range from 1000 to 2500 RPM in steps of 25; percentages below 40% request the minimum 1000 RPM. Zero starts Pause. The displayed percentage follows measured RPM, so it can differ while the motor settles. Turning the fan off starts a timed Pause; turning it on clears an active Pause and returns to automatic ventilation. Automatic mode may still leave the motor idle under its native rules.
 
+Each fan can have its own **Maximum requested speed** in Plugin Config (`maxManualRpm`). This caps both Boost and speed-slider targets for that fan while keeping the displayed speed tied to measurement. Leave it blank for the normal 2500 RPM target limit. The owner's older Wetroom fan accepted 2400 RPM but returned zero RPM for a 2450 RPM request; its validated limit is therefore set to 2400. This observation does not establish the limit for every fan with that firmware.
+
 Hide either switch in Plugin Config if you prefer fewer tiles. Hiding a switch does not cancel a running action. Temporary controls currently require operating mode 00, the mode tested on the newer Kitchen fan. The plugin refuses controls in other modes and does not change installation modes.
 
 ## Quiet hours
@@ -66,7 +68,7 @@ Check the fan's address and PIN securely in Plugin Config, Bluetooth range and a
 
 ## What has been checked
 
-Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established timed Boost, timed zero-RPM Pause, expiry, early resume and speed changes. All tested settings were restored. Both Kitchen and the older Wetroom fan subsequently authenticated and provided telemetry after Wetroom's address and PIN were corrected. Kitchen's pending-command retries were also exercised through HomeKit switches. Wetroom's firmware 02.08 did not confirm the initial 2450 RPM Boost test; compatibility investigation remains in progress.
+Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established timed Boost, timed zero-RPM Pause, expiry, early resume and speed changes. All tested settings were restored. Both Kitchen and the older Wetroom fan subsequently authenticated and provided telemetry after Wetroom's address and PIN were corrected. Kitchen's pending-command retries were also exercised through HomeKit switches. Wetroom's firmware 02.08 accepted a temporary 2400 RPM Boost, confirmed by HomeKit readback, and returned to automatic ventilation after cancellation. Its initial 2450 RPM request produced a zero-RPM override; the per-fan target limit addresses this observed difference.
 
 Version 2.5.0-beta.1 has been published and installed on the owner's Pi. This working branch adds recovery and pending-command fixes beyond that published package, with automated protocol, queue and native Homebridge-service tests. See [live diagnostic evidence](docs/BETA1-LIVE-DIAGNOSTIC.md), [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md). Brief successful sessions do not establish sustained Bluetooth reliability.
 

@@ -34,6 +34,15 @@
               "pattern": "^(?:[0-9]{6}|[0-9]{8})$",
               "description": "Enter this fan’s six- or eight-digit PIN, including any leading zeroes. The PIN is stored in your Homebridge configuration.",
               "secret": true
+            },
+            "maxManualRpm": {
+              "title": "Maximum requested speed for this fan (RPM)",
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 2500,
+              "multipleOf": 25,
+              "placeholder": "2500",
+              "description": "Optional. Limits Boost and speed-slider requests for this fan. Leave blank for 2500 RPM. Some older fans reject higher requests; use a speed confirmed to work on your fan. This does not change its permanent presets."
             }
           },
           "required": [
@@ -111,7 +120,8 @@
           "items": [
             "fans[].name",
             "fans[].mac",
-            "fans[].pin"
+            "fans[].pin",
+            "fans[].maxManualRpm"
           ]
         }
       ]

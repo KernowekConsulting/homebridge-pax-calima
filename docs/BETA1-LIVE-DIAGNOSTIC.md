@@ -47,7 +47,7 @@ Local hotfix changes (not yet a published npm release):
 - Await acknowledged scan stop before connecting or handing the radio to the next session.
 - Supply explicit ConfiguredName values for Boost and Pause and identify each accessory in recovery/error logs.
 
-All 46 tests pass across Node 22/24 and Homebridge 1/2. These include stalled-disconnect recovery, failure to recover, dropped connections, acknowledged scan stop, scan-stop timeout, transient background failures with a strict freshness limit, automatic command retries, supersession, restart persistence, lost-confirmation timer preservation and protected writes after authentication processing.
+All 48 tests pass across Node 22/24 and Homebridge 1/2. These include stalled-disconnect recovery, failure to recover, dropped connections, acknowledged scan stop, scan-stop timeout, transient background failures with a strict freshness limit, automatic command retries, supersession, restart persistence, lost-confirmation timer preservation, protected writes after authentication processing and per-fan target limits with uncapped measured telemetry.
 
 Both modified files were hash checked against locally tested source before deployment. SvaraHome's child bridge alone was restarted to activate each hotfix stage. No whole-Pi reboot or fan control/configuration command was issued by the diagnostic workflow. Existing configured quiet-hours behaviour remains part of normal plugin polling.
 
@@ -60,7 +60,9 @@ The owner subsequently confirmed Wetroom's saved PIN was incorrect and was direc
 Final deployed hotfix source fingerprints:
 
 - `lib/transport.js`: `5c4220af7c69629859427b0250e248ae6359353286eacbe635c710ccbc9ae051`
-- `lib/accessory.js`: `eecf76a830a55fceffdcb140dcee5b94226fcfdfc909db710d7ec4cd4e33c01c`
+- `lib/accessory.js`: `a3bfc5ded2fa2fb2a08b1e3eadfb45231924024ec402d86de787ce8f4f6ed2bb`
+- `lib/platform.js`: `395db1bafe8f9d2a5fd6618ee62ced7da38afb1da4a49088882bfbb20b31ced4`
+- `config.schema.json`: `764cb5a906cfdd0b993a7574e4b42ef1b2cad90c54849c05ec5045334ca80189`
 
 The child bridge restart was requested after the second source update; final live verification remains pending after the owner's configuration edit.
 
@@ -81,3 +83,11 @@ Revision c8142f1 was hash checked and activated at 12:25. Both fans subsequently
 - Wetroom Boost at configured 2450 RPM: request became pending at 12:31:49, repeatedly returned COMMAND_NOT_CONFIRMED, and readback showed Pause On rather than Boost. A Pause Off command superseded the pending request; the subsequent cache inspection showed no pending request for either fan. This is a failed compatibility test, not a successful Boost result.
 
 The working revision now stops retries after an explicitly different valid control readback and records requested/received manual state, RPM and seconds for diagnosis. Transport errors and lost responses remain retryable. A 200 ms authentication processing interval is being tested, based on the upstream [WhisperBridge Svara implementation](https://garethcooke.github.io/WhisperBridge/). Its documentation reports silently ignored command writes without this interval; applicability to the owner's older fan remains a hypothesis until live testing.
+
+Revision 4abd47d was activated at 12:45:25. At 12:46:48 Wetroom still returned `requested boost 2450 RPM/600s, received pause 0 RPM/599s`. The authentication processing interval therefore did not resolve this speed-specific failure. The request stopped rather than repeatedly resending the mismatched control state.
+
+The Homebridge UI fan tile toggles Active rather than exposing a speed slider. A temporary Pause from that inspection was cleared through the bridge's existing authenticated HAP interface. The QA-checked `tools/pi-hap-probe.py` verifies accessory ID and exact service name before writing, reads the existing bridge PIN locally without printing it, and connects only to the configured loopback HAP port. It does not change authentication or enable an insecure listener.
+
+Wetroom then accepted a 96% slider request (2400 RPM target) with HTTP 204 and measured readbacks of 84%, 99%, 99%, Boost 1 and Pause 0. Boost-off returned HTTP 204 and measured readbacks of 75%, 40%, 40%, with both overrides Off. This distinguishes the accepted 2400 RPM target from the rejected 2450 RPM target; it does not establish an exact firmware-wide maximum.
+
+The candidate now provides optional per-fan `maxManualRpm` validation and UI input, applying the ceiling to Boost and slider targets while leaving measured RPM unchanged. Wetroom will be assigned the validated 2400 RPM ceiling; Kitchen's common Boost setting remains unchanged. Final live checks follow after deployment.

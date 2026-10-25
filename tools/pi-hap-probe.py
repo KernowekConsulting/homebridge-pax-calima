@@ -4,6 +4,7 @@ The bridge PIN is read locally and sent only to its loopback HAP listener.
 No PIN, full accessory description or configuration is printed or saved.
 """
 import argparse
+import datetime
 import http.client
 import json
 import pathlib
@@ -12,11 +13,11 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--aid', type=int, required=True)
 parser.add_argument('--expect', required=True, help='Exact fan service name observed in Homebridge UI')
-parser.add_argument('action', choices=['read', 'resume', 'speed', 'boost-off', 'pause-on', 'pause-off'])
-parser.add_argument('--percent', type=int, choices=[60, 96])
+parser.add_argument('action', choices=['read', 'resume', 'speed', 'boost-on', 'boost-off', 'pause-on', 'pause-off'])
+parser.add_argument('--percent', type=int, choices=[60, 96, 100])
 args = parser.parse_args()
 if args.action == 'speed' and args.percent is None:
-    parser.error('speed requires --percent 60 or 96')
+    parser.error('speed requires --percent 60, 96 or 100')
 
 root = pathlib.Path('/var/lib/homebridge')
 config = json.loads((root / 'config.json').read_text())
@@ -69,12 +70,22 @@ def readback():
             for label, iid in fields.items()}
 
 
-print('BEFORE', json.dumps(readback()), flush=True)
+def record(event, data):
+    entry = {'at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'aid': args.aid,
+             'action': args.action, 'requested_percent': args.percent, 'event': event, 'data': data}
+    with pathlib.Path('/tmp/svarahome-hap-evidence.jsonl').open('a') as output:
+        output.write(json.dumps(entry) + '\n')
+    print(event, json.dumps(data), flush=True)
+
+
+record('BEFORE', readback())
 if args.action != 'read':
     if args.action == 'speed':
         target, value = fields['measured_percent'], args.percent
     elif args.action == 'boost-off':
         target, value = fields['boost'], False
+    elif args.action == 'boost-on':
+        target, value = fields['boost'], True
     elif args.action == 'pause-on':
         target, value = fields['pause'], True
     else:
@@ -82,7 +93,7 @@ if args.action != 'read':
         target, value = fields['pause'], False
     status, result = request('PUT', '/characteristics', {'characteristics': [
         {'aid': args.aid, 'iid': target, 'value': value}]})
-    print('REQUEST', args.action, 'HTTP', status, json.dumps(result), flush=True)
+    record('REQUEST', {'http': status, 'response': result})
     for _ in range(3):
         time.sleep(10)
-        print('READBACK', json.dumps(readback()), flush=True)
+        record('READBACK', readback())

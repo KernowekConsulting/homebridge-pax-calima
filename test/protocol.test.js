@@ -59,3 +59,15 @@ test('GUI accepts both PIN lengths and enforces address/duration/rpm constraints
   for (const pin of ['012345', '00123456']) assert.equal(valid({fans:[{mac:'58:2b:db:11:22:33',pin}]}), true);
   for (const config of [{fans:[{pin:'123456'}]},{fans:[{mac:'bad',pin:'123456'}]},{fans:[],boostMinutes:0},{fans:[],boostRpm:1501}]) assert.equal(valid(config),false);
 });
+test('per-fan speed ceilings are optional and validated identically by runtime and GUI',()=>{
+  const fan={mac:'58:2b:db:11:22:33',pin:'00123456'};
+  const valid=new Ajv({strict:false}).compile(require('../config.schema.json').schema);
+  for(const limit of [1000,1500,2400,2500]){
+    const config={fans:[{...fan,maxManualRpm:limit}]};assert.equal(valid(config),true);
+    assert.equal(validateConfig(config).get(fan.mac).maxManualRpm,limit);
+  }
+  for(const limit of [0,975,2401,2501,'2400']){
+    const config={fans:[{...fan,maxManualRpm:limit}]};assert.equal(valid(config),false);
+    assert.equal(validateConfig(config).size,0);
+  }
+});
