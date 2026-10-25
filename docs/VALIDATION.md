@@ -46,3 +46,7 @@ A command acknowledged by the fan can still be reported failed if subsequent tel
 ## Owner-supplied Wetroom evidence
 
 The 25 October official-app About screen identifies Wetroom Fan, Bathroom Mode, firmware 02.08, hardware 02.00 and app 7.3.0. See WETROOM-ABOUT.md. This does not establish authentication or control success. Approved beta copy and the stable-promotion rule are recorded in RELEASING.md.
+
+## GitHub release checks
+
+The Linux GitHub workflow passed native installation/loading, full and production security audits, syntax checks, all 32 tests and package-content checks in all four Node/Homebridge combinations. Run: https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40179681093. This confirms Linux installation and automated behavior, not physical fan/Apple Home acceptance.
