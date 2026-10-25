@@ -3,10 +3,10 @@
     "id": "homebridge-pax-calima@2.5.0",
     "name": "homebridge-pax-calima",
     "version": "2.5.0",
-    "size": 67037,
+    "size": 67029,
     "unpackedSize": 111136,
-    "shasum": "7848c06ff89f75a32819801c16e88d1d846a6f40",
-    "integrity": "sha512-VByDBLgLbr85ngI5bD1xWBusvUZFoOINEaOk1KmPQXR7LFZxSYG6iQikYde7cT7RSEkru5qLFU3w2zN/Hy1idg==",
+    "shasum": "4a479abe579a718727f065872b6e414266c2084c",
+    "integrity": "sha512-mpIY+Ej7MKEdoekfD4bhH7kAiuKXtOGsbj3wo5l3Iw5uY3wCzFx3ttvGNrVVNxZEyNjQJB+lrbFwpt3Hibz3nA==",
     "filename": "homebridge-pax-calima-2.5.0.tgz",
     "files": [
       {
@@ -42,7 +42,7 @@
       {
         "path": "assets/vent-axia.png",
         "size": 46913,
-        "mode": 384
+        "mode": 420
       },
       {
         "path": "config.schema.json",
