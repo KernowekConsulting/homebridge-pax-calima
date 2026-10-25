@@ -17,13 +17,13 @@ The current requirements name supported Node LTS 22 and 24, a dynamic platform, 
 | Area | Candidate evidence / remaining work |
 |---|---|
 | Dynamic platform | Registers PaxCalima, restores cached identities and creates only explicitly configured fans after launch. |
-| Node LTS | 29 tests pass on Node 22.23.4 and 24.19.0 with Homebridge 1.11.4 and 2.4.0. |
+| Node LTS | 32 tests pass on Node 22.23.4 and 24.19.0 with Homebridge 1.11.4 and 2.4.0. |
 | Settings GUI | Schema provides per-fan addresses and secret six/eight-digit PIN fields, Boost/Pause choices and quiet hours. Actual UI save/reload still needs acceptance testing. |
 | Configuration gate | No Noble load or radio work for absent/empty/unusable fan config; unroutable cached accessories remain faulted. |
 | Errors | Bounded sessions, rejected-PIN polling stop, redacted messages and HomeKit communication errors; no optimistic success after rejected readback. |
 | Storage/tracking | No runtime files outside Homebridge. Only schedule-application metadata is saved through accessory context. No analytics or cloud calls. |
 | Installation/startup | Plugin has no install/postinstall script or TTY requirement. Noble has native dependencies: clean Linux install and ordinary Homebridge Bluetooth permissions must be validated before claiming compliance. |
-| Dependency audit | The source checkout’s saved audit reports six high and one critical finding in the optional Linux Noble/native build chain. Resolve and recheck before publication; no broad version override was applied without native-install evidence. |
+| Dependency audit | The vulnerable Noble/native build chain has been replaced. Full, production and Linux ARM64 resolution audits report zero vulnerabilities; see DEPENDENCY-SECURITY.md. Native Linux execution remains an acceptance check. |
 | Comparable verified plugin | Current list has no name matching Pax or Calima. A full functionality comparison and final decision remain with Homebridge reviewers. |
 | Publication | Local candidate only. npm publication and matching GitHub release remain pending acceptance. |
 

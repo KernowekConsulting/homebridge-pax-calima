@@ -2,183 +2,201 @@ TAP version 13
 # Subtest: native Home services expose working boost/pause with mutually exclusive readback
 ok 1 - native Home services expose working boost/pause with mutually exclusive readback
   ---
-  duration_ms: 6.775
+  duration_ms: 6.682666
   type: 'test'
   ...
 # Subtest: restart reads a live manual pause; native expiry clears switches without writes
 ok 2 - restart reads a live manual pause; native expiry clears switches without writes
   ---
-  duration_ms: 0.750167
+  duration_ms: 0.747458
   type: 'test'
   ...
 # Subtest: speed slider writes temporary manual control and reports measured speed
 ok 3 - speed slider writes temporary manual control and reports measured speed
   ---
-  duration_ms: 2.006292
+  duration_ms: 2.07175
   type: 'test'
   ...
 # Subtest: auth rejection and rejected readback return HomeKit failures; no fake successful command
 ok 4 - auth rejection and rejected readback return HomeKit failures; no fake successful command
   ---
-  duration_ms: 0.942917
+  duration_ms: 0.981791
   type: 'test'
   ...
 # Subtest: invalid RPM and stale telemetry are communication faults, not plausible speed percentages
 ok 5 - invalid RPM and stale telemetry are communication faults, not plausible speed percentages
   ---
-  duration_ms: 0.728375
+  duration_ms: 0.744667
   type: 'test'
   ...
 # Subtest: fresh mode gate refuses commands without writing mode or manual state
 ok 6 - fresh mode gate refuses commands without writing mode or manual state
   ---
-  duration_ms: 0.367334
+  duration_ms: 0.347958
   type: 'test'
   ...
 # Subtest: changed native schedule is applied once; app edits survive polling and restart
 ok 7 - changed native schedule is applied once; app edits survive polling and restart
   ---
-  duration_ms: 0.8725
+  duration_ms: 0.866209
   type: 'test'
   ...
 # Subtest: legacy services migrate with stable fan UUID/subtype and no duplicates
 ok 8 - legacy services migrate with stable fan UUID/subtype and no duplicates
   ---
-  duration_ms: 0.683333
+  duration_ms: 0.689875
   type: 'test'
   ...
 # Subtest: unconfigured platform has no Bluetooth work; cached fan remains faulted
 ok 9 - unconfigured platform has no Bluetooth work; cached fan remains faulted
   ---
-  duration_ms: 0.751
+  duration_ms: 0.738875
   type: 'test'
   ...
 # Subtest: launch handles only configured addresses and keeps cached identities
 ok 10 - launch handles only configured addresses and keeps cached identities
   ---
-  duration_ms: 0.433125
+  duration_ms: 0.459167
   type: 'test'
   ...
 # Subtest: overlapping poll, boost and pause requests are all executed in order
 ok 11 - overlapping poll, boost and pause requests are all executed in order
   ---
-  duration_ms: 0.797959
+  duration_ms: 0.762083
   type: 'test'
   ...
 # Subtest: failed schedule verification does not persist an applied marker
 ok 12 - failed schedule verification does not persist an applied marker
   ---
-  duration_ms: 0.359125
+  duration_ms: 0.34575
   type: 'test'
   ...
 # Subtest: hiding optional controls preserves the active device action
 ok 13 - hiding optional controls preserves the active device action
   ---
-  duration_ms: 0.421875
+  duration_ms: 0.395291
   type: 'test'
   ...
 # Subtest: a rejected PIN stops unattended retries; an explicit successful command restores polling
 ok 14 - a rejected PIN stops unattended retries; an explicit successful command restores polling
   ---
-  duration_ms: 0.308125
+  duration_ms: 0.317417
+  type: 'test'
+  ...
+# Subtest: maintained Noble real API completes authenticated GATT write/read/disconnect and rescans
+ok 15 - maintained Noble real API completes authenticated GATT write/read/disconnect and rescans
+  ---
+  duration_ms: 3.574
+  type: 'test'
+  ...
+# Subtest: maintained Noble real API refuses false auth before action writes
+ok 16 - maintained Noble real API refuses false auth before action writes
+  ---
+  duration_ms: 0.94275
+  type: 'test'
+  ...
+# Subtest: maintained Noble real API restores disabled remembered-target state as automatic
+ok 17 - maintained Noble real API restores disabled remembered-target state as automatic
+  ---
+  duration_ms: 0.560458
   type: 'test'
   ...
 # Subtest: six and eight digit PINs use UInt32LE, preserving leading zero strings
-ok 15 - six and eight digit PINs use UInt32LE, preserving leading zero strings
+ok 18 - six and eight digit PINs use UInt32LE, preserving leading zero strings
   ---
-  duration_ms: 0.540083
+  duration_ms: 0.53825
   type: 'test'
   ...
 # Subtest: only explicit success authenticates; false, unknown and malformed replies fail closed
-ok 16 - only explicit success authenticates; false, unknown and malformed replies fail closed
+ok 19 - only explicit success authenticates; false, unknown and malformed replies fail closed
   ---
-  duration_ms: 0.208583
+  duration_ms: 0.20725
   type: 'test'
   ...
 # Subtest: manual expiry, remembered target and cancellation are distinct from active boost/pause
-ok 17 - manual expiry, remembered target and cancellation are distinct from active boost/pause
+ok 20 - manual expiry, remembered target and cancellation are distinct from active boost/pause
   ---
-  duration_ms: 0.160875
+  duration_ms: 0.157417
   type: 'test'
   ...
 # Subtest: command confirmation permits native countdown but rejects changed target and failed cancellation
-ok 18 - command confirmation permits native countdown but rejects changed target and failed cancellation
+ok 21 - command confirmation permits native countdown but rejects changed target and failed cancellation
   ---
-  duration_ms: 0.172917
+  duration_ms: 0.169333
   type: 'test'
   ...
 # Subtest: captured telemetry replays: valid RPM retained, all three implausible samples rejected
-ok 19 - captured telemetry replays: valid RPM retained, all three implausible samples rejected
+ok 22 - captured telemetry replays: valid RPM retained, all three implausible samples rejected
   ---
-  duration_ms: 0.657542
+  duration_ms: 0.638125
   type: 'test'
   ...
 # Subtest: schedule validation rejects malformed and ambiguous windows
-ok 20 - schedule validation rejects malformed and ambiguous windows
+ok 23 - schedule validation rejects malformed and ambiguous windows
   ---
-  duration_ms: 0.320917
+  duration_ms: 0.131291
   type: 'test'
   ...
 # Subtest: invalid old fan entry is isolated; no name-only PIN inference or default PIN
-ok 21 - invalid old fan entry is isolated; no name-only PIN inference or default PIN
+ok 24 - invalid old fan entry is isolated; no name-only PIN inference or default PIN
   ---
-  duration_ms: 0.245084
+  duration_ms: 0.174209
   type: 'test'
   ...
 # Subtest: GUI accepts both PIN lengths and enforces address/duration/rpm constraints
-ok 22 - GUI accepts both PIN lengths and enforces address/duration/rpm constraints
+ok 25 - GUI accepts both PIN lengths and enforces address/duration/rpm constraints
   ---
-  duration_ms: 15.609417
+  duration_ms: 15.757166
   type: 'test'
   ...
 # Subtest: queue serialises sessions, acknowledges auth writes and disconnects every time
-ok 23 - queue serialises sessions, acknowledges auth writes and disconnects every time
+ok 26 - queue serialises sessions, acknowledges auth writes and disconnects every time
   ---
-  duration_ms: 8.68175
+  duration_ms: 8.329041
   type: 'test'
   ...
 # Subtest: failed authentication prevents actions, disconnects, and does not poison the queue
-ok 24 - failed authentication prevents actions, disconnects, and does not poison the queue
+ok 27 - failed authentication prevents actions, disconnects, and does not poison the queue
   ---
-  duration_ms: 0.728834
+  duration_ms: 0.573042
   type: 'test'
   ...
 # Subtest: read and scan timeouts clean listeners; backend errors cannot become late writes
-ok 25 - read and scan timeouts clean listeners; backend errors cannot become late writes
+ok 28 - read and scan timeouts clean listeners; backend errors cannot become late writes
   ---
-  duration_ms: 12.780542
+  duration_ms: 13.223667
   type: 'test'
   ...
 # Subtest: closed transport rejects queued/new actions and blocks disallowed writes
-ok 26 - closed transport rejects queued/new actions and blocks disallowed writes
+ok 29 - closed transport rejects queued/new actions and blocks disallowed writes
   ---
-  duration_ms: 0.358333
+  duration_ms: 0.377625
   type: 'test'
   ...
 # Subtest: late connection after timeout is disconnected and never runs an action
-ok 27 - late connection after timeout is disconnected and never runs an action
+ok 30 - late connection after timeout is disconnected and never runs an action
   ---
-  duration_ms: 5.967417
+  duration_ms: 5.69175
   type: 'test'
   ...
 # Subtest: late scan callback cannot stop a later session scan
-ok 28 - late scan callback cannot stop a later session scan
+ok 31 - late scan callback cannot stop a later session scan
   ---
-  duration_ms: 5.864375
+  duration_ms: 6.64675
   type: 'test'
   ...
 # Subtest: shutdown while scanning cleans up and prevents authentication
-ok 29 - shutdown while scanning cleans up and prevents authentication
+ok 32 - shutdown while scanning cleans up and prevents authentication
   ---
-  duration_ms: 6.733584
+  duration_ms: 6.645083
   type: 'test'
   ...
-1..29
-# tests 29
+1..32
+# tests 32
 # suites 0
-# pass 29
+# pass 32
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 205.538333
+# duration_ms 203.969917

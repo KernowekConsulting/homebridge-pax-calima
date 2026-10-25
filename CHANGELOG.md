@@ -1,32 +1,51 @@
 # Changelog
 
-[Release notes](RELEASE_NOTES.md) describe the proposed update. Earlier entries record the behaviour reported at the time and are superseded where 2.5.0 corrects it.
+[Release notes](RELEASE_NOTES.md) describe the proposed update. Beta entries are consolidated into the stable release when it is promoted; beta history remains in GitHub prereleases and tags.
 
-## 2.5.0 — Boost and Pause (unreleased)
+## 2.5.0-beta.1 — Boost and Pause
+
+### SvaraHome
+
+- Introduced the SvaraHome name across the plugin listing, setup guidance and release copy.
+- Added the approved layered house-and-fan logo and prepared a Homebridge icon.
+- Retained the existing package identifier and fan accessory identities for upgrade continuity.
 
 ### Everyday controls
 
-- Added actionable timed Boost and Pause switches, shown by default with individual visibility settings.
-- Added early return to automatic ventilation and native timer expiry, with readback after commands.
-- Used temporary manual override for the fan speed slider instead of changing a persistent light-trigger preset.
-- Made Boost and Pause mutually exclusive, and prevented an inactive switch-off from cancelling the other action.
-- Restricted manual controls to the tested operating mode without changing installation settings.
+- Added timed Boost and Pause switches, shown by default with individual visibility settings.
+- Added early return to automatic ventilation and readback after control commands.
+- Used the fan’s native timer so temporary actions can finish while Homebridge is disconnected.
+- Changed the speed slider to temporary manual control, preserving persistent speed presets.
+- Made Boost and Pause mutually exclusive and prevented an inactive switch-off from cancelling the other action.
+- Restricted manual controls to operating mode 00 without changing installation settings.
 
-### Reliable communication
+### Bluetooth and telemetry
 
-- Validated six- and eight-digit PIN strings and confirmed authentication before operating reads or writes.
-- Required an explicit fan address/PIN binding; isolated invalid entries and removed default-PIN guessing.
-- Queued Bluetooth sessions across all fans, bounded operations, cleaned up scans/connections and retained a recovery gate for late connections.
-- Returned HomeKit communication failures for rejected or unconfirmed commands; reconciled current state through subsequent polls and after restart.
-- Validated payload lengths and RPM, and stopped presenting stale or implausible telemetry as healthy readings.
+- Added explicit address/PIN routing and validation for six- and eight-digit PINs.
+- Required confirmed authentication and stopped unattended retries after a rejected PIN.
+- Queued Bluetooth sessions across fans and added bounded operations, connection cleanup and late-connection recovery handling.
+- Reported communication failures for unconfirmed commands, stale telemetry and invalid readings.
+- Reconciled the fan’s current override through polling and after restart.
 
-### Clearer setup and upgrades
+### Setup and upgrades
 
-- Preserved fan accessory identities while replacing the non-actionable Boost event service.
-- Removed unsupported temperature, humidity and light services, correcting the earlier sensor claims.
-- Applied changed native quiet-hours schedules once and preserved later app edits; read back the schedule switch and retained its times when toggled.
-- Updated Plugin Config guidance, repository links and Node support; introduced the SvaraHome name, layered house-and-fan artwork and a 100-pixel icon for the verification process.
-- Added automated native Homebridge 1/2, protocol, configuration and queue tests, plus replay of recorded device telemetry. Live deployment and Homebridge verification remain pending.
+- Replaced the non-actionable Boost event service.
+- Removed unsupported temperature, humidity and light services.
+- Applied changed quiet-hours schedules once, preserving later official-app edits.
+- Updated configuration guidance and supported Node versions.
+- Added 32 automated tests covering protocol handling, native Homebridge services, configuration, queues, recorded telemetry and the maintained Bluetooth library’s real classes.
+
+### Dependency security
+
+- Replaced the old Bluetooth dependency with the maintained Noble fork, removing the vulnerable archive and native-build dependency chain.
+- Confirmed zero reported vulnerabilities in fresh full and production audits, including a separately resolved Linux ARM64 production tree.
+- Added high/critical audit gates to CI.
+
+### Beta validation
+
+- Automated tests passed across Node 22/24 and Homebridge 1/2.
+- Live deployment, older-fan authentication and a native Linux installation test remain outstanding.
+- Homebridge verification remains pending.
 
 ## 2.4.5
 

@@ -1,7 +1,7 @@
 {
   "name": "homebridge-pax-calima",
   "displayName": "SvaraHome",
-  "version": "2.5.0",
+  "version": "2.5.0-beta.1",
   "description": "SvaraHome brings timed Boost, Pause and local Bluetooth control for Pax Calima and Vent-Axia Svara fans into Apple Home.",
   "main": "index.js",
   "keywords": [
@@ -22,9 +22,6 @@
     "homebridge": "^1.8.0 || ^2.0.0",
     "node": "^22.12.0 || ^24.0.0"
   },
-  "dependencies": {
-    "@abandonware/noble": "1.9.2-26"
-  },
   "homepage": "https://github.com/KernowekConsulting/homebridge-pax-calima",
   "repository": {
     "type": "git",
@@ -36,7 +33,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "node --test test/*.test.js",
-    "check": "node --check index.js && node --check lib/accessory.js && node --check lib/platform.js && node --check lib/protocol.js && node --check lib/transport.js"
+    "check": "node --check index.js && node --check lib/accessory.js && node --check lib/platform.js && node --check lib/protocol.js && node --check lib/transport.js",
+    "audit:release": "npm audit --audit-level=high && npm audit --omit=dev --audit-level=high"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
@@ -53,6 +51,10 @@
     "RELEASE_NOTES.md",
     "LICENSE",
     "docs/VALIDATION.md",
-    "docs/VERIFICATION.md"
-  ]
+    "docs/VERIFICATION.md",
+    "docs/DEPENDENCY-SECURITY.md"
+  ],
+  "dependencies": {
+    "@stoprocent/noble": "2.8.0"
+  }
 }

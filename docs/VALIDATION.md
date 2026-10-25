@@ -1,19 +1,19 @@
-# 2.5.0 candidate validation
+# 2.5.0-beta.1 candidate validation
 
 25 October 2026. Base commit: `1f22f3ab8136cf1ea5f13ea736a6722f4bfdd2b0` (2.4.5). Work is on local branch `feat/2.5.0-boost-pause`. No Pi plugin deployment, service stop, firmware update, reset or new fan-setting write was performed during implementation.
 
 ## Automated checks
 
-29 tests pass in each combination:
+32 tests pass in each combination:
 
 | Node | Homebridge | Result |
 |---|---|---|
-| 22.23.4 | 1.11.4 | 29/29 |
-| 22.23.4 | 2.4.0 | 29/29 |
-| 24.19.0 | 1.11.4 | 29/29 |
-| 24.19.0 | 2.4.0 | 29/29 |
+| 22.23.4 | 1.11.4 | 32/32 |
+| 22.23.4 | 2.4.0 | 32/32 |
+| 24.19.0 | 1.11.4 | 32/32 |
+| 24.19.0 | 2.4.0 | 32/32 |
 
-Machine-readable results and complete TAP logs are alongside this file in the source checkout; those raw QA files are excluded from the npm package. Tests instantiate the real Homebridge PlatformAccessory and HAP service classes, with a simulated Noble radio. They do not start a real Homebridge server, pair an iPhone or connect to a fan.
+Machine-readable results and complete TAP logs are alongside this file in the source checkout; those raw QA files are excluded from the npm package. Tests instantiate the real Homebridge PlatformAccessory and HAP service classes, and the maintained Noble library’s real classes, with simulated physical Bluetooth bindings. They do not start a real Homebridge server, pair an iPhone or connect to a fan.
 
 Coverage includes explicit PIN encoding/confirmation, authentication rejection, queue ordering, failed command readback, scan/ATT timeouts and cleanup, late connection recovery, shutdown, stale and malformed telemetry, native service handlers, restart reconciliation, modes, upgrades, visibility, schedules and config routing. Overlapping poll/Boost/Pause requests all execute serially. Rejected authentication stops unattended retries; an explicit user command or configuration restart can retry.
 
@@ -29,7 +29,7 @@ The older fan (software 02.08) did not confirm authentication using the attempte
 
 ## Remaining acceptance gates
 
-1. Resolve the saved dependency audit findings and perform a clean native install on supported Linux/Node versions. The existing Noble version is intentionally retained until a replacement or dependency fix can be tested. Do not equate passing mocked-radio tests with native Bluetooth compatibility.
+1. Complete native Linux installation/execution on supported Node versions. The vulnerable dependency chain has been replaced and full, production and Linux ARM64 resolution audits now report zero vulnerabilities; see DEPENDENCY-SECURITY.md. Linux resolution was checked on macOS without lifecycle scripts, so native Linux compatibility remains to be confirmed.
 2. Save/reload Plugin Config on the Pi, securely correct the older fan's address/PIN, and confirm six/eight-digit routing without exposing either PIN in evidence.
 3. Deploy the candidate deliberately to the fan child bridge, retaining the existing installed package for rollback. Confirm normal authenticated polling and invalid-PIN fault behavior.
 4. In Apple Home, exercise Boost, Pause, early resume, timer expiry and slider control. Check mutual exclusion, command rejection/offline presentation and the expected service migration. Verify Siri using actual Home names/scenes.
@@ -42,3 +42,7 @@ The older fan (software 02.08) did not confirm authentication using the attempte
 No independent airflow measurement, final Apple Home/Siri test or live 2.5.0 deployment has occurred. Durations default to ten minutes and are configurable from one to sixty; native timer serialization is tested, but long-duration physical acceptance still belongs in the final run. Manual controls require mode 00 and never change operating mode. Nonzero targets below 1000 RPM are not offered. Ambient sensors remain omitted until their interpretation is established.
 
 A command acknowledged by the fan can still be reported failed if subsequent telemetry is invalid or communication is lost. This is deliberate uncertainty reporting; the next successful poll reconciles the fan, without automatically resending a control command.
+
+## Owner-supplied Wetroom evidence
+
+The 25 October official-app About screen identifies Wetroom Fan, Bathroom Mode, firmware 02.08, hardware 02.00 and app 7.3.0. See WETROOM-ABOUT.md. This does not establish authentication or control success. Approved beta copy and the stable-promotion rule are recorded in RELEASING.md.

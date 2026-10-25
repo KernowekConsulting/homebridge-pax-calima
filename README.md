@@ -64,6 +64,8 @@ Check the fan's address and PIN securely in Plugin Config, Bluetooth range and a
 
 Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established timed Boost, timed zero-RPM Pause, expiry, early resume and speed changes. All tested settings were restored. The older fan did not confirm authentication, so its controls remain unverified.
 
-The 2.5.0 implementation has automated protocol, queue and native Homebridge-service tests, including replay of recorded telemetry. It has not yet been deployed or tested end to end in Apple Home. See [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md).
+The 2.5.0-beta.1 implementation has automated protocol, queue and native Homebridge-service tests, including replay of recorded telemetry. It has not yet been deployed or tested end to end in Apple Home. See [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md).
 
 Homebridge verification remains an aim. The SvaraHome logo is bundled for the icon request; Homebridge controls verified status and icon display. See [verification preparation](docs/VERIFICATION.md).
+
+Dependency security: this candidate uses the maintained Noble library. The recorded six high and one critical dependency findings have been removed; fresh audits report zero vulnerabilities. See [security evidence](docs/DEPENDENCY-SECURITY.md).

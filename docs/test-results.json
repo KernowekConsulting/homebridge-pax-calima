@@ -2,28 +2,28 @@
   {
     "node": "v22.23.4",
     "homebridge": "2.4.0",
-    "tests": 29,
+    "tests": 32,
     "pass": true,
     "log": "tests-v22.23.4-homebridge.tap"
   },
   {
     "node": "v22.23.4",
     "homebridge": "1.11.4",
-    "tests": 29,
+    "tests": 32,
     "pass": true,
     "log": "tests-v22.23.4-homebridge1.tap"
   },
   {
     "node": "v24.19.0",
     "homebridge": "2.4.0",
-    "tests": 29,
+    "tests": 32,
     "pass": true,
     "log": "tests-v24.19.0-homebridge.tap"
   },
   {
     "node": "v24.19.0",
     "homebridge": "1.11.4",
-    "tests": 29,
+    "tests": 32,
     "pass": true,
     "log": "tests-v24.19.0-homebridge1.tap"
   }
