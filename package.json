@@ -28,7 +28,7 @@
     "url": "git+https://github.com/KernowekConsulting/homebridge-pax-calima.git"
   },
   "bugs": {
-    "url": "https://homebridge.svarahome.kernowekconsulting.co.uk"
+    "url": "https://github.com/KernowekConsulting/homebridge-pax-calima/issues"
   },
   "license": "Apache-2.0",
   "scripts": {
@@ -54,7 +54,10 @@
     "docs/VALIDATION.md",
     "docs/VERIFICATION.md",
     "docs/DEPENDENCY-SECURITY.md",
-    "scripts/check-native.cjs"
+    "scripts/check-native.cjs",
+    "docs/BETA1-LIVE-DIAGNOSTIC.md",
+    "docs/pi-live-control-evidence-20261025.jsonl",
+    "docs/STABLE-PROMOTION.md"
   ],
   "dependencies": {
     "@stoprocent/noble": "2.8.0"

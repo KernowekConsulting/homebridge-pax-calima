@@ -1,47 +1,45 @@
-# Homebridge verification preparation
+# Homebridge verification readiness
 
-Reviewed 25 October 2026. This is preparation for a request, not a claim of approval.
-
-## Current sources
-
-- [Homebridge](https://homebridge.io/)
-- [Current requirements](https://github.com/homebridge/plugins/wiki/Verified-Plugins), updated 5 May 2026; the older homebridge/homebridge wiki still quotes obsolete Node versions.
-- [Verification process](https://github.com/homebridge/plugins#plugin-verification)
-- [Verification form](https://github.com/homebridge/plugins/blob/latest/.github/ISSUE_TEMPLATE/1_verification-request.yml)
-- [Icon form](https://github.com/homebridge/plugins/blob/latest/.github/ISSUE_TEMPLATE/2_icon-request.yml)
-
-The current requirements name supported Node LTS 22 and 24, a dynamic platform, settings GUI, graceful errors, explicit configuration before startup, no tracking, and Homebridge-local storage. A published npm package, public GitHub source with issues enabled, and matching GitHub release notes are required. Current UI transport metadata supports `supports-hap`, which this package declares. It does not register Matter accessories itself.
+Reviewed 25 October 2026 against the current requirements and request forms. SvaraHome is not verified, and no verification request has been submitted by this work.
 
 ## Assessment
 
-| Area | Candidate evidence / remaining work |
-|---|---|
-| Dynamic platform | Registers PaxCalima, restores cached identities and creates only explicitly configured fans after launch. |
-| Node LTS | 32 tests pass on Node 22.23.4 and 24.19.0 with Homebridge 1.11.4 and 2.4.0. |
-| Settings GUI | Schema provides per-fan addresses and secret six/eight-digit PIN fields, Boost/Pause choices and quiet hours. Actual UI save/reload still needs acceptance testing. |
-| Configuration gate | No Noble load or radio work for absent/empty/unusable fan config; unroutable cached accessories remain faulted. |
-| Errors | Bounded sessions, rejected-PIN polling stop, redacted messages and HomeKit communication errors; no optimistic success after rejected readback. |
-| Storage/tracking | No runtime files outside Homebridge. Only schedule-application metadata is saved through accessory context. No analytics or cloud calls. |
-| Installation/startup | Plugin has no install/postinstall script or TTY requirement. Noble native dependencies install/load successfully on the Pi under Node 22/24 without starting the adapter. Live Bluetooth access through the installed plugin still needs acceptance testing. |
-| Dependency audit | The vulnerable Noble/native build chain has been replaced. All saved audits, including the Pi, report zero vulnerabilities. Native Linux ARM64 install/load passes on Node 22/24; actual fan communication remains an acceptance check. |
-| Comparable verified plugin | Current list has no name matching Pax or Calima. A full functionality comparison and final decision remain with Homebridge reviewers. |
-| Publication | Local candidate only. npm publication and matching GitHub release remain pending acceptance. |
+**The 2.5 candidate has evidence for the main technical requirements. Finish stable promotion and the remaining user acceptance checks before submitting.** npm latest and the repository default branch still describe 2.4.5, whose old Bluetooth dependency is not the remediated 2.5 implementation. Do not present those older stable sources as the tested candidate.
 
-## Supplied icon
+| Requirement | Evidence and status |
+| --- | --- |
+| Dynamic platform | Implemented: PaxCalima registers a platform, restores cached fan identities and registers configured fans after launch. |
+| Distinct functionality | No Pax, Calima or Svara name was found in the current verified list. This is a preliminary name check, not proof of a complete functionality comparison; explain support for these BLE fans and let reviewers assess overlap. |
+| npm and public GitHub source, issues enabled | Confirmed: public KernowekConsulting repository with issues enabled. Beta.2 is published on npm with a matching GitHub prerelease and notes. Align default-branch source with stable 2.5.0 on promotion. |
+| Supported Node LTS versions | Beta.2 release commit d953842 passed all four Node 22/24 × Homebridge 1/2 jobs, 48 tests per job, including native installation/loading. |
+| Installs and waits for configuration | Candidate has no install/postinstall script. Unconfigured or unusable fan configuration does not load Noble or start discovery. Native Linux ARM64 installation/loading was checked under Node 22/24; normal installed-plugin fan communication subsequently passed live checks. |
+| No TTY or unusual Homebridge startup flags | Runtime has no TTY prompt or startup-flag dependency. Normal installed child-bridge operation is evidenced on the Pi. The radio still requires normal Bluetooth access; historical diagnostic scripts are not installation requirements. |
+| Settings GUI | Schema provides explicit fan address/PIN, durations, switch visibility, quiet hours and per-fan speed limits. User PIN correction, saved configuration reload and the 2400 RPM setting were exercised in the actual UI/live plugin. |
+| No tracking | Runtime source contains no analytics or HTTP/cloud requests. It communicates locally over BLE. |
+| Homebridge-local storage | Runtime persists identity, schedule metadata and pending manual intent through Homebridge accessory context. It does not create separate runtime files elsewhere. Diagnostic evidence files are developer tools, not plugin runtime storage. |
+| Caught errors | Implemented bounded BLE operations, caught polling/intent failures, redacted fan-specific logs and HomeKit communication errors. Tests cover rejected authentication, bad telemetry, timeouts, shutdown, retries and incompatible readback. This is evidence from inspected paths and tests, not a claim that no unforeseen defect can occur. |
 
-SvaraHome’s layered blue house-and-fan artwork is retained in `assets/svarahome-master.png`, with a 1024-pixel version in `assets/svarahome.png`. The square 100 × 100 PNG `assets/homebridge-pax-calima.png` matches the form's requested approximate size and format. Its text and blue background were visually checked at that size.
+The current [official requirements](https://github.com/homebridge/plugins/wiki/Verified-Plugins) specify Node 22 and 24 and were last revised on 5 May 2026. [The verification process](https://github.com/homebridge/plugins#plugin-verification) requires an issue using [the request form](https://github.com/homebridge/plugins/blob/latest/.github/ISSUE_TEMPLATE/1_verification-request.yml). The source of the orange shield is Homebridge's central verification status; it cannot be changed by adding a logo or a package field.
 
-The verification form can include an icon. The separate icon request form requires the plugin to be verified first and the requester to be its developer. Homebridge then registers the icon centrally; adding a logo URL to package metadata alone does not enable the tile. No invented metadata field or verified badge has been added.
+## Release evidence
 
-Prepared request details:
+- Exact beta.2 release CI: [run 40216171472](https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40216171472), all four jobs successful. Native module loading, full/production high-severity audit gates, syntax, tests and package checks passed.
+- Published [npm beta.2](https://www.npmjs.com/package/homebridge-pax-calima/v/2.5.0-beta.2) and [matching GitHub prerelease](https://github.com/KernowekConsulting/homebridge-pax-calima/releases/tag/v2.5.0-beta.2).
+- Public beta.2 tarball SHA-256: b1153a3c4a07463c900a5f2407383ecb9583cff983097b8849f062f20a5854fa. Registry download matched the checked artifact and its homepage/issue metadata.
+- Both six- and eight-digit-PIN fans authenticated after the owner corrected Wetroom's saved PIN privately. Live HAP controls confirmed Boost, Pause and cancellation on both fans. Wetroom accepted the 2400 RPM ceiling and capped 100% slider request; 2450 RPM was explicitly rejected as a zero-RPM override.
+- Kitchen transient failures recovered without repeating the Home command. Final trials ended with both manual overrides Off and no pending requests. See [the detailed live report](BETA1-LIVE-DIAGNOSTIC.md) and [42 redacted trial records](pi-live-control-evidence-20261025.jsonl).
+- Dependency remediation and isolated installation details are in [DEPENDENCY-SECURITY.md](DEPENDENCY-SECURITY.md). The beta implementation uses the maintained Noble fork; stable 2.4.5 still has the old dependency.
 
-- npm name: `homebridge-pax-calima`
-- repository: `https://github.com/KernowekConsulting/homebridge-pax-calima`
-- attachment: `assets/homebridge-pax-calima.png`
-- status: do not submit until the open validation and dependency items are resolved; the supplied manufacturer mark is subject to its owner's rights as explained alongside the asset.
+## Remaining work before requesting review
 
-## Release writing
+1. Complete the owner's chosen full 2.5.0 promotion, including default-branch source alignment, stable release copy and removal/consolidation of beta changelog sections. The owner declined a metadata-only 2.4.6 release.
+2. Follow [STABLE-PROMOTION.md](STABLE-PROMOTION.md): verify npm latest metadata, the actual Homebridge Plugin Homepage button and release-note view after cache refresh. Beta.2's homepage is correct, but the UI currently uses stable 2.4.5 metadata. Preserve a GitHub issue tracker so release-note discovery still works.
+3. Verify that the requested SvaraHome website resolves and loads over HTTPS. It did not resolve from the Mac during the beta.2 release check. This is a website acceptance issue, not a listed Homebridge verification criterion.
+4. Record normal-use acceptance on both fans, including the owner's actual Siri names/scenes and a longer period of automatic operation/recovery. HAP tests do not establish Siri recognition or uninterrupted BLE reliability. These are our release acceptance checks, not additional formal Homebridge rules.
+5. Prepare the verification form with accurate evidence and the approved icon, then submit only when the owner requests that communication. Review and approval remain with Homebridge.
 
-Tone references: GivHome [4.1.0](https://github.com/KernowekConsulting/homebridge-giv-iog-local/releases/tag/v4.1.0), [4.1.1 changelog](https://github.com/KernowekConsulting/homebridge-giv-iog-local/blob/v4.1.1/CHANGELOG.md) and recent prereleases. The default-branch changelog currently describes stable v3, so the v4 tag was used for the recent stable style.
+## Logo
 
-Lead with everyday intent and outcomes, explain what a tile does in plain language, state defaults and continuity, then separate tested behavior from future aims. Avoid claims of verification or complete compatibility while the relevant checks remain open. Drafts are in RELEASE_NOTES.md and CHANGELOG.md.
+The approved SvaraHome artwork is assets/svarahome-master.png, with a 1024-pixel version in assets/svarahome.png. assets/homebridge-pax-calima.png was checked as a square 100 × 100 PNG.
+
+The verification form accepts an optional icon attachment. The [separate icon request form](https://github.com/homebridge/plugins/blob/latest/.github/ISSUE_TEMPLATE/2_icon-request.yml) requires an already-verified plugin and a request from its developer. Include the approved icon with the verification request; central registration controls its appearance in the Homebridge tile. Do not claim verification, use a verified badge or replace the approved logo with a manufacturer mark.

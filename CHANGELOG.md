@@ -2,6 +2,12 @@
 
 [Release notes](RELEASE_NOTES.md) describe the proposed update. Beta entries are consolidated into the stable release when it is promoted; beta history remains in GitHub prereleases and tags.
 
+## Unreleased — Stable promotion preparation
+
+- Retain the SvaraHome website as the homepage and restore the current GitHub issues URL as the issue tracker, so Homebridge can resolve GitHub release notes.
+- Include the redacted live evidence referenced by the packaged documentation.
+- Make the actual Homebridge homepage button, release notes and stable npm metadata explicit promotion checks. Beta.2 remains unchanged; its homepage already points to the new site.
+
 ## 2.5.0-beta.2 — Patient requests, truthful tiles
 
 - Keep Boost, Pause and speed requests pending through temporary Bluetooth failures, including child-bridge restarts. A newer manual command replaces the pending request.
