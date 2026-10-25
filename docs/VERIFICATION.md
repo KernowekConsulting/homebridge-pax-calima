@@ -4,14 +4,14 @@ Reviewed 25 October 2026 against the current requirements and request forms. Sva
 
 ## Assessment
 
-**The 2.5 candidate has evidence for the main technical requirements. Finish stable promotion and the remaining user acceptance checks before submitting.** npm latest and the repository default branch still describe 2.4.5, whose old Bluetooth dependency is not the remediated 2.5 implementation. Do not present those older stable sources as the tested candidate.
+**The 2.5 candidate has evidence for the main technical requirements. Finish stable promotion and the remaining user acceptance checks before submitting.** The repository default branch now contains the tested 2.5 implementation and its current public guide. npm latest still points to the older stable release until the owner requests full promotion; that older package is not the remediated candidate.
 
 | Requirement | Evidence and status |
 | --- | --- |
 | Dynamic platform | Implemented: PaxCalima registers a platform, restores cached fan identities and registers configured fans after launch. |
 | Distinct functionality | No Pax, Calima or Svara name was found in the current verified list. This is a preliminary name check, not proof of a complete functionality comparison; explain support for these BLE fans and let reviewers assess overlap. |
-| npm and public GitHub source, issues enabled | Confirmed: public KernowekConsulting repository with issues enabled. Beta.2 is published on npm with a matching GitHub prerelease and notes. Align default-branch source with stable 2.5.0 on promotion. |
-| Supported Node LTS versions | Beta.2 release commit d953842 passed all four Node 22/24 × Homebridge 1/2 jobs, 48 tests per job, including native installation/loading. |
+| npm and public GitHub source, issues enabled | Confirmed: public KernowekConsulting repository with issues enabled. Beta.3 is published on npm with a matching GitHub prerelease and notes. Default-branch source now matches the 2.5 implementation; align version metadata and final copy at stable promotion. |
+| Supported Node LTS versions | Beta.3 release commit 3f40661 passed all four Node 22/24 × Homebridge 1/2 jobs, 52 tests per job, including native installation/loading. |
 | Installs and waits for configuration | Candidate has no install/postinstall script. Unconfigured or unusable fan configuration does not load Noble or start discovery. Native Linux ARM64 installation/loading was checked under Node 22/24; normal installed-plugin fan communication subsequently passed live checks. |
 | No TTY or unusual Homebridge startup flags | Runtime has no TTY prompt or startup-flag dependency. Normal installed child-bridge operation is evidenced on the Pi. The radio still requires normal Bluetooth access; historical diagnostic scripts are not installation requirements. |
 | Settings GUI | Schema provides explicit fan address/PIN, durations, switch visibility, quiet hours and per-fan speed limits. User PIN correction, saved configuration reload and the 2400 RPM setting were exercised in the actual UI/live plugin. |
@@ -23,7 +23,7 @@ The current [official requirements](https://github.com/homebridge/plugins/wiki/V
 
 ## Beta.3 update
 
-Beta.3 simplifies the default presentation to Fan and Boost Fan; Pause Fan is optional and explicitly enabled settings are retained. Main Fan On now clears either override through the same verified, persisted request path. All 52 tests pass locally with Homebridge 1 and 2 under Node 24; exact release CI is required before publication. This extends automated evidence, not the earlier physical/Siri acceptance evidence below.
+Beta.3 simplifies the default presentation to Fan and Boost Fan; Pause Fan is optional and explicitly enabled settings are retained. Main Fan On now clears either override through the same verified, persisted request path. All 52 tests passed in each supported Node/Homebridge CI combination in [run 40220445646](https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40220445646). The checked public beta.3 tarball matched its recorded checksum. This extends automated evidence, not the earlier physical/Siri acceptance evidence below.
 
 ## Earlier release evidence
 
@@ -36,9 +36,9 @@ Beta.3 simplifies the default presentation to Fan and Boost Fan; Pause Fan is op
 
 ## Remaining work before requesting review
 
-1. Complete the owner's chosen full 2.5.0 promotion, including default-branch source alignment, stable release copy and removal/consolidation of beta changelog sections. The owner declined a metadata-only 2.4.6 release.
+1. Complete the owner's chosen full 2.5.0 promotion, including final version/source alignment, review of the concise user-facing release copy and removal of the changelog’s Unreleased label. The owner declined a metadata-only 2.4.6 release.
 2. Follow [STABLE-PROMOTION.md](STABLE-PROMOTION.md): verify npm latest metadata, the actual Homebridge Plugin Homepage button and release-note view after cache refresh. Beta.2's homepage is correct, but the UI currently uses stable 2.4.5 metadata. Preserve a GitHub issue tracker so release-note discovery still works.
-3. Verify that the requested SvaraHome website resolves and loads over HTTPS. It did not resolve from the Mac during the beta.2 release check. This is a website acceptance issue, not a listed Homebridge verification criterion.
+3. Verify that the requested SvaraHome website resolves and loads over HTTPS. It did not resolve during the earlier beta.2 check, but the intended site subsequently loaded over HTTPS in Safari during beta.3 publication. Recheck at stable promotion. This is a website acceptance issue, not a listed Homebridge verification criterion.
 4. Record normal-use acceptance on both fans, including the owner's actual Siri names/scenes and a longer period of automatic operation/recovery. HAP tests do not establish Siri recognition or uninterrupted BLE reliability. These are our release acceptance checks, not additional formal Homebridge rules.
 5. Prepare the verification form with accurate evidence and the approved icon, then submit only when the owner requests that communication. Review and approval remain with Homebridge.
 

@@ -21,7 +21,7 @@ The same service locates GitHub release notes from either the homepage or issue-
 - Review the concise 2.5 RELEASE_NOTES.md and CHANGELOG.md against the final behaviour and the changes since 2.4.5. Communicate only added value, changes and essential upgrade steps: no beta discussion, internal workings, investigations or test chronology. Remove the Unreleased label when publishing; existing prerelease tags/releases retain development history. Replace the README’s short beta-installation notice with the stable installation instructions.
 - Reconcile the latest beta acceptance evidence, including Siri with the owner's actual Home names, reconnection, expiry/cancellation and extended operation. Record limits honestly; automated HAP trials do not establish voice recognition or uninterrupted Bluetooth reliability.
 - Run the Node 22/24 × Homebridge 1/2 checks, native install/load check, full/production audits and package checks on the exact release commit. Verify public source, issues and matching release notes.
-- Confirm that the new site resolves and responds over HTTPS. It did not resolve from the Mac at the beta.2 release check; do not silently treat that as completed.
+- Confirm that the new site resolves and responds over HTTPS. The earlier beta.2 check failed DNS resolution; the intended page subsequently loaded over HTTPS in Safari during beta.3 publication. Recheck the live destination at stable promotion.
 
 ## Verify the published result
 
