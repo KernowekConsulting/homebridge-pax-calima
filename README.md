@@ -4,6 +4,8 @@ Give the fan a boost. Pause it for a quiet moment. Let it return to normal when 
 
 SvaraHome brings local Bluetooth control for Pax Calima and Vent-Axia Svara fans in Apple Home. No cloud account is needed.
 
+[Visit SvaraHome for setup guidance and support](https://homebridge.svarahome.kernowekconsulting.co.uk).
+
 ## Set up your fan
 
 Install `homebridge-pax-calima` through Homebridge UI, then open Plugin Config. Add each fan's Bluetooth address and its own six- or eight-digit PIN from the official app. Keep leading zeroes. Close the official app while Homebridge connects.
@@ -72,7 +74,7 @@ Check the fan's address and PIN securely in Plugin Config, Bluetooth range and a
 
 Device-level trials on the owner's newer eight-digit-PIN Kitchen fan established timed Boost, timed zero-RPM Pause, expiry, early resume and speed changes. All tested settings were restored. Both Kitchen and the older Wetroom fan subsequently authenticated and provided telemetry after Wetroom's address and PIN were corrected. Kitchen's pending-command retries were also exercised through HomeKit switches. Wetroom's firmware 02.08 accepted a temporary 2400 RPM Boost, confirmed by HomeKit readback, and returned to automatic ventilation after cancellation. Its initial 2450 RPM request produced a zero-RPM override; the per-fan target limit addresses this observed difference.
 
-Version 2.5.0-beta.1 has been published and installed on the owner's Pi. This working branch adds recovery and pending-command fixes beyond that published package, with automated protocol, queue and native Homebridge-service tests. See [live diagnostic evidence](docs/BETA1-LIVE-DIAGNOSTIC.md), [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md). Brief successful sessions do not establish sustained Bluetooth reliability.
+Version 2.5.0-beta.2 adds recovery and pending-command fixes to beta.1. The control implementation has been tested on the owner's Pi, with automated protocol, queue and native Homebridge-service checks. See [live diagnostic evidence](docs/BETA1-LIVE-DIAGNOSTIC.md), [validation](docs/VALIDATION.md), [release notes](RELEASE_NOTES.md) and [changelog](CHANGELOG.md). Brief successful sessions do not establish sustained Bluetooth reliability.
 
 Homebridge verification remains an aim. The SvaraHome logo is bundled for the icon request; Homebridge controls verified status and icon display. See [verification preparation](docs/VERIFICATION.md).
 

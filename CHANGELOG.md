@@ -2,7 +2,7 @@
 
 [Release notes](RELEASE_NOTES.md) describe the proposed update. Beta entries are consolidated into the stable release when it is promoted; beta history remains in GitHub prereleases and tags.
 
-## Unreleased — Patient requests, truthful tiles
+## 2.5.0-beta.2 — Patient requests, truthful tiles
 
 - Keep Boost, Pause and speed requests pending through temporary Bluetooth failures, including child-bridge restarts. A newer manual command replaces the pending request.
 - Confirm the fan's state before showing an action as active. Check uncertain writes before retrying, preserving an already-running timer.
@@ -13,6 +13,9 @@
 - Add explicit Boost/Pause tile names and identify the fan in communication logs.
 - Add an optional speed-target limit for each fan, covering Boost and the Home speed slider. This accommodates the owner's older Wetroom fan, which accepts 2400 RPM and returns zero RPM for a 2450 RPM request, while retaining Kitchen's existing setting.
 - Stop retries for rejected authentication, invalid data, explicitly different control readback or unsupported operating modes. Siri can still time out before Bluetooth recovers; a pending request continues until confirmed, replaced or stopped by one of these faults.
+
+- Point the plugin website and support links to the new [SvaraHome site](https://homebridge.svarahome.kernowekconsulting.co.uk).
+- Confirm live Boost, Pause and cancellation on both fans, plus capped slider control on Wetroom. All 48 automated tests pass across Node 22/24 and Homebridge 1/2 for the control implementation.
 
 ## 2.5.0-beta.1 — Boost and Pause
 

@@ -1,45 +1,41 @@
-# SvaraHome 2.5.0-beta.1 — Boost and Pause
+# SvaraHome 2.5.0-beta.2 — Patient requests, truthful tiles
 
-A little more airflow when you need it. A quiet moment when you want one.
+Ask for a boost. Let SvaraHome work through a temporary Bluetooth interruption. See what the fan has confirmed.
 
-Meet SvaraHome: the new name for our Pax Calima and Vent-Axia Svara Homebridge plugin. This first beta introduces timed Boost and Pause controls, more careful Bluetooth communication and a new house-and-fan identity.
+This beta builds on SvaraHome's timed Boost and Pause controls, with recovery improvements tested on both the newer Kitchen fan and the older Wetroom fan.
 
-## Boost — then back to normal
+## A request worth waiting for
 
-Start a temporary boost from Apple Home. For example, say, “Siri, boost the fan.” Choose its usual speed and duration in Plugin Config, and let the fan return to automatic ventilation when its timer ends. Turn Boost off to return sooner.
+Boost, Pause and speed requests now stay pending through temporary Bluetooth failures. SvaraHome retries after a failed attempt, including after a child-bridge restart. A newer manual command replaces the waiting request.
 
-The speed slider now changes a temporary session, leaving your saved humidity, light and background-ventilation speed settings in place.
+For example, say, “Siri, boost the kitchen fan.” Siri may still time out while Bluetooth recovers; the request can continue afterwards. Turn Boost off to cancel a pending Boost, or Pause off to cancel a pending Pause. A waiting request can start when the fan becomes reachable later.
 
-## Pause — with a way back
+Rejected authentication, invalid data, unsupported operating modes and an explicitly different control readback stop retries and need attention.
 
-Pause stops the fan temporarily. Its own timer returns it to automatic ventilation, even if Homebridge disconnects. Turn Pause off to resume sooner; the motor may take a few seconds to respond.
+## What Home shows
 
-Boost and Pause share one manual override. Starting either replaces the other, and their switches follow the fan’s reported state. Both are shown by default and can be hidden in Plugin Config.
+Boost and Pause follow the fan's confirmed manual state. The speed slider returns to measured speed after a request, rather than staying at the percentage you asked for.
 
-Name the controls clearly in Home, then use them in scenes or with Siri.
+An uncertain write is checked before it is repeated, so an already-running timer is preserved. A missed background poll retains the last verified reading only within the existing 45-second freshness limit. Failed commands and stale or invalid readings report a communication fault.
 
-## Clearer communication
+Bluetooth recovery now retries stalled disconnects and waits for scanning to stop before connecting. Logs identify which fan needs attention, and Boost and Pause have explicit tile names.
 
-Each fan uses its own Bluetooth address and six- or eight-digit PIN. SvaraHome checks authentication before reading operating state or sending controls, then checks command readback.
+## A limit for each fan
 
-Bluetooth work is queued across fans. Missing responses, stale readings and implausible speed values produce a communication fault instead of an assumed success. After a restart, SvaraHome reads the current override from the fan.
+The optional **Maximum requested speed** setting caps Boost and slider targets separately for each fan. Measured speed remains unchanged.
 
-Quiet-hours schedules are saved when their configured times change. Routine polling respects later changes made in the official app.
+Our older Wetroom fan accepted 2400 RPM but returned a zero-RPM override for a 2450 RPM request. Its tested limit is now 2400 RPM; Kitchen retains 2450 RPM. This is evidence from these fans, rather than a universal limit for every firmware version.
 
 ## Before you upgrade
 
-Your fan accessory keeps its identity and existing room assignment. The old Boost event button is replaced by a working switch, so check scenes that referred to it.
+Check that each fan has its own Bluetooth address and correct six- or eight-digit PIN. Close the official app while Homebridge connects. After saving configuration changes, use **Restart Child Bridge** on SvaraHome's plugin card so the saved settings are loaded.
 
-Every fan now needs its own address and PIN in Plugin Config. SvaraHome no longer guesses a default PIN.
+Timed controls keep the fan's own expiry timer and leave persistent ventilation presets in place. Existing fan identities and room assignments are retained. If upgrading from 2.4.x, check scenes that used the old Boost event button; it is replaced by a working switch. Unsupported temperature, humidity and light tiles are removed.
 
-Temperature, humidity and light tiles are removed. The previous humidity/light values came from heat settings, and the temperature conversion remains unverified.
+Setup guidance and support now live at the [SvaraHome website](https://homebridge.svarahome.kernowekconsulting.co.uk).
 
-The approved SvaraHome logo is included. Its appearance on the Homebridge plugin tile depends on Homebridge’s verification and icon-registration process.
+## Tested, with more to learn
 
-## About this beta
+Live checks confirmed Boost, Pause and cancellation on both fans, plus the capped speed slider on Wetroom. The control implementation passed 48 automated tests in each Node 22/24 and Homebridge 1/2 combination. Short successful trials do not establish uninterrupted Bluetooth reliability, and Siri voice recognition still depends on your Home names and scenes.
 
-Manual controls currently require the tested operating mode, mode 00. SvaraHome does not change installation modes.
-
-Automated checks cover real Homebridge services, simulated Bluetooth communication and recorded fan telemetry. Earlier device trials established the underlying Boost and Pause commands on the newer Kitchen fan. Live testing of this plugin implementation and validation of the older fan remain outstanding.
-
-This is a testing release. Homebridge verification has not yet been granted.
+This is a testing release. Homebridge verification remains pending.

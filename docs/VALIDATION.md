@@ -1,4 +1,13 @@
-# 2.5.0-beta.1 candidate validation
+# 2.5.0-beta.2 validation
+
+The control implementation (revision 9f30bae) passed all 48 tests in each Node 22/24 and Homebridge 1/2 combination in [Linux CI run 40195658845](https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40195658845). Live HAP checks confirmed Boost, Pause and cancellation on Kitchen and Wetroom, plus Wetroom slider control with its 2400 RPM target ceiling. Both fans finished with manual overrides Off and no pending requests.
+
+See [detailed live evidence](BETA1-LIVE-DIAGNOSTIC.md) and [42 redacted final-trial records](pi-live-control-evidence-20261025.jsonl) in the repository. The beta.2 release preparation changes version metadata, website/support links and release documentation; its runtime control files are unchanged from the tested revision. Publication status must be confirmed separately against npm and GitHub.
+
+The following records describe the original beta.1 validation, including acceptance gates that were outstanding at that time. The later live evidence above supersedes those historical gaps. Siri voice interaction and sustained Bluetooth reliability are not established by HAP control trials.
+
+## Historical beta.1 candidate validation
+
 
 25 October 2026. Base commit: `1f22f3ab8136cf1ea5f13ea736a6722f4bfdd2b0` (2.4.5). Work is on local branch `feat/2.5.0-boost-pause`. No Pi plugin deployment, service stop, firmware update, reset or new fan-setting write was performed during implementation.
 
