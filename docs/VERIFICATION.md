@@ -1,6 +1,6 @@
 # Homebridge verification readiness
 
-Reviewed 25 October 2026 against the current requirements and request forms. SvaraHome is not verified, and no verification request has been submitted by this work.
+Reviewed 26 October 2026 against the current requirements and request forms. SvaraHome is not verified, and no verification request has been submitted by this work.
 
 ## Assessment
 
@@ -47,3 +47,7 @@ Beta.3 simplifies the default presentation to Fan and Boost Fan; Pause Fan is op
 The approved SvaraHome artwork is assets/svarahome-master.png, with a 1024-pixel version in assets/svarahome.png. assets/homebridge-pax-calima.png was checked as a square 100 × 100 PNG.
 
 The verification form accepts an optional icon attachment. The [separate icon request form](https://github.com/homebridge/plugins/blob/latest/.github/ISSUE_TEMPLATE/2_icon-request.yml) requires an already-verified plugin and a request from its developer. Include the approved icon with the verification request; central registration controls its appearance in the Homebridge tile. Do not claim verification, use a verified badge or replace the approved logo with a manufacturer mark.
+
+## Stable release preparation — 26 October 2026
+
+The owner authorised stable 2.5.0 publication and a verification application. Stable release notes and the changelog describe value and changes since 2.4.5, without prerelease history. The owner also reported that Wetroom Boost Fan worked and subsequently returned to automatic operation; the elapsed duration was not measured. Exact Siri recognition and uninterrupted long-term Bluetooth operation are not claimed. Final stable CI, public npm metadata/tarball/README checks and verification submission are recorded separately in release evidence. The earlier remaining-work list is historical preparation, not a claim that those outcomes have already been completed.

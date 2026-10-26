@@ -8,7 +8,7 @@ SvaraHome brings local Bluetooth control for Pax Calima and Vent-Axia Svara fans
 
 [Website and support](https://homebridge.svarahome.kernowekconsulting.co.uk) · [Plugin on npm](https://www.npmjs.com/package/homebridge-pax-calima) · [Release notes](RELEASE_NOTES.md)
 
-**SvaraHome 2.5 is currently available on the beta channel.** Select `2.5.0-beta.3` in Homebridge’s version selector to use the controls described here. Full 2.5.0 has not been released.
+**SvaraHome 2.5.0** brings timed Boost, Pause and confirmed fan feedback to Apple Home.
 
 ## What you get in Apple Home
 
@@ -43,7 +43,7 @@ Apple Home may show the controls together or as separate tiles, depending on its
 
 You need Homebridge 1.8 or later within version 1, or Homebridge 2; Node 22.12 or later within Node 22, or Node 24; and a working Bluetooth adapter with the normal Bluetooth access for your Homebridge installation.
 
-1. Install `homebridge-pax-calima` through Homebridge UI and select the 2.5 beta version.
+1. Install or update `homebridge-pax-calima` through Homebridge UI.
 2. Open Plugin Config. Add each fan’s Bluetooth address and its own six- or eight-digit PIN from the official app. Keep leading zeroes. There is no default PIN or automatic pairing with nearby fans.
 3. Choose the Boost speed/duration and Pause duration. Close the official app while Homebridge connects.
 4. Save and use **Restart Child Bridge** on SvaraHome’s plugin card. A dedicated child bridge is recommended; pair it with Apple Home if it is not already paired.
@@ -51,7 +51,7 @@ You need Homebridge 1.8 or later within version 1, or Homebridge 2; Node 22.12 o
 
 Temporary controls require a supported fan operating mode. SvaraHome does not change the fan’s installation mode. A factory reset or accessory-cache reset is not part of normal setup or upgrading.
 
-If you manage plugins from a terminal, the current testing channel is `homebridge-pax-calima@beta`. Prefer Homebridge UI when it manages your installation.
+If you manage plugins from a terminal, install `homebridge-pax-calima@latest`. Prefer Homebridge UI when it manages your installation.
 
 ## Configuration
 
