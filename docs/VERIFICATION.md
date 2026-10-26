@@ -1,6 +1,10 @@
 # Homebridge verification readiness
 
-Reviewed 26 October 2026 against the current requirements and request forms. SvaraHome is not verified, and no verification request has been submitted by this work.
+Reviewed 26 October 2026 against the current requirements and request forms. **Stable 2.5.0 is published and [verification request #1302](https://github.com/homebridge/plugins/issues/1302) has been submitted. Verification has not yet been granted.**
+
+The exact stable release commit passed all four [Node 22/24 × Homebridge 1/2 CI jobs](https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40297202771), with 52 tests per job. npm latest is 2.5.0; the downloaded public tarball matched the checked artifact. The rendered default npm page shows the cleaned guide and correct homepage. The actual Homebridge Plugin Homepage button was followed to the intended HTTPS site, whose stable 2.5.0 copy rendered in Safari. GitHub release notes match the approved file. The Homebridge update-dialog release-note view was not separately inspected while the owner was using that window.
+
+The assessment below retains the development evidence and earlier preparation history; the stable publication and submitted request above supersede its pending-promotion references.
 
 ## Assessment
 
@@ -34,7 +38,7 @@ Beta.3 simplifies the default presentation to Fan and Boost Fan; Pause Fan is op
 - Kitchen transient failures recovered without repeating the Home command. Final trials ended with both manual overrides Off and no pending requests. See [the detailed live report](BETA1-LIVE-DIAGNOSTIC.md) and [42 redacted trial records](pi-live-control-evidence-20261025.jsonl).
 - Dependency remediation and isolated installation details are in [DEPENDENCY-SECURITY.md](DEPENDENCY-SECURITY.md). The beta implementation uses the maintained Noble fork; stable 2.4.5 still has the old dependency.
 
-## Remaining work before requesting review
+## Earlier remaining-work list (historical)
 
 1. Complete the owner's chosen full 2.5.0 promotion, including final version/source alignment, review of the concise user-facing release copy and removal of the changelog’s Unreleased label. The owner declined a metadata-only 2.4.6 release.
 2. Follow [STABLE-PROMOTION.md](STABLE-PROMOTION.md): verify npm latest metadata, the actual Homebridge Plugin Homepage button and release-note view after cache refresh. Beta.2's homepage is correct, but the UI currently uses stable 2.4.5 metadata. Preserve a GitHub issue tracker so release-note discovery still works.
