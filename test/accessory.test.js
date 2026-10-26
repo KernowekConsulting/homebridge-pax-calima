@@ -241,8 +241,49 @@ test('a per-fan validated ceiling caps Boost and slider targets without capping 
   await limited.h.speed(100);assert.equal(limited.r.values.manual.readUInt16LE(1),2400);
   limited.r.values.status.writeUInt16LE(2475,6);await limited.h.poll();
   assert.equal(await get(limited.h.fanService,C.RotationSpeed),99);
-  const unrestricted=fixture(t,{boostRpm:2450});await unrestricted.h.manual('boost',true);
+  const unrestricted=fixture(t,{boostRpm:2450});unrestricted.h.fan={...fan,maxManualRpm:2500};await unrestricted.h.manual('boost',true);
   assert.equal(unrestricted.r.values.manual.readUInt16LE(1),2450);
+});
+test('default ceiling fixes the same CO2 automation HAP action that fails with an explicitly unsafe higher limit',async t=>{
+  const {r,h,a,platform,logs}=fixture(t,{boostRpm:2450});
+  h.fan={...fan,maxManualRpm:2500}; // reproduce the previous unrestricted target
+  const manual=r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.manual);
+  const write=manual.writeAsync;
+  manual.writeAsync=async(value,...args)=>{
+    await write(value,...args);
+    // Exact valid-but-different readback observed on Kitchen, 26 October.
+    if(value[0]===1 && value.readUInt16LE(1)>2400) r.values.manual.writeUInt16LE(0,1);
+  };
+  const connection={}; // Exercise HAP client validation, including numeric bool.
+  await assert.rejects(h.boostService.getCharacteristic(C.On).handleSetRequest(1,connection));
+  assert.equal(r.values.manual.toString('hex'),'0100005802');
+  assert.equal(h.intent,null);assert.equal(a.context.pendingManual,undefined);
+  assert.ok(logs.some(line=>line.includes('requested boost 2450 RPM/600s, received pause 0 RPM/600s')));
+  await h.poll();assert.equal(await get(h.pauseService,C.On),true);
+  // Same accessory/service and automation action; no per-fan limit required.
+  h.close();const service=h.boostService,uuid=a.UUID;
+  const limited=new FanAccessory(platform,homebridge,a,fan);
+  t.after(()=>limited.close());
+  await limited.boostService.getCharacteristic(C.On).handleSetRequest(1,connection);
+  assert.equal(a.UUID,uuid);assert.equal(limited.boostService,service);
+  assert.equal(r.values.manual.toString('hex'),'0160095802');
+  assert.equal(await get(limited.boostService,C.On),true);
+  assert.equal(await get(limited.pauseService,C.On),false);
+  await limited.boostService.getCharacteristic(C.On).handleSetRequest(0,connection);
+  assert.equal(r.values.manual.toString('hex'),'0000000000');
+  assert.ok(r.writes.every(w=>['auth','manual'].includes(w.name)));
+});
+test('default temporary target ceiling protects Boost and slider, preserves measured RPM and explicit per-fan overrides',async t=>{
+  const {r,h}=fixture(t,{boostRpm:2500});
+  await set(h.boostService,C.On,true);assert.equal(r.values.manual.readUInt16LE(1),2400);
+  await set(h.fanService,C.RotationSpeed,100);assert.equal(r.values.manual.readUInt16LE(1),2400);
+  r.values.status.writeUInt16LE(2475,6);await h.poll();
+  assert.equal(await get(h.fanService,C.RotationSpeed),99);
+  h.fan={...fan,maxManualRpm:1500};await set(h.boostService,C.On,true);
+  assert.equal(r.values.manual.readUInt16LE(1),1500);
+  h.fan={...fan,maxManualRpm:2500};await set(h.fanService,C.RotationSpeed,100);
+  assert.equal(r.values.manual.readUInt16LE(1),2500);
+  assert.equal(require('../config.schema.json').schema.properties.fans.items.properties.maxManualRpm.placeholder,'2400');
 });
 test('background retry timer fulfils a pending request without another Home command',async t=>{
   const {h,platform}=fixture(t);t.mock.timers.enable({apis:['setTimeout']});
@@ -270,4 +311,82 @@ test('a rejected PIN stops unattended retries; an explicit successful command re
   const count=r.writes.length;await h.poll();assert.equal(r.writes.length,count);assert.equal(h.authRejected,true);
   r.values.confirmation=Buffer.from([1]);await set(h.boostService,C.On,true);
   assert.equal(h.authRejected,false);assert.ok(h.pollTimer);assert.equal(await get(h.boostService,C.On),true);
+});
+
+test('Pause automation accepts numeric HAP On; reports motor coast-down and native expiry without inventing speed',async t=>{
+  const {r,h}=fixture(t,{pauseMinutes:2});const connection={};
+  await h.pauseService.getCharacteristic(C.On).handleSetRequest(1,connection);
+  assert.equal(r.values.manual.toString('hex'),'0100007800');
+  assert.equal(await get(h.pauseService,C.On),true);
+  assert.equal(await get(h.boostService,C.On),false);
+  assert.equal(await get(h.fanService,C.Active),0);
+  assert.equal(await get(h.fanService,C.RotationSpeed),41); // still coasting
+  r.values.status.writeUInt16LE(0,6);await h.poll();
+  assert.equal(await get(h.fanService,C.RotationSpeed),0);
+  assert.equal(await get(h.fanService,C.CurrentFanState),1);
+  r.values.manual=Buffer.alloc(5);r.values.status.writeUInt16LE(1000,6);
+  const writes=r.writes.filter(w=>w.name==='manual').length;await h.poll();
+  assert.equal(await get(h.pauseService,C.On),false);
+  assert.equal(await get(h.fanService,C.Active),1);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,writes);
+});
+for(const on of [true,false]) test('Pause '+(on?'On':'Off')+' patiently retries repeated radio failures without more Home commands',async t=>{
+  const {r,h,platform,a,logs}=fixture(t);if(!on)r.values.manual=Buffer.from('0100005802','hex');
+  t.mock.timers.enable({apis:['setTimeout']});
+  const run=platform.transport.run.bind(platform.transport);let attempts=0,offline=true;
+  platform.transport.run=(...args)=>{
+    attempts++;
+    return offline?Promise.reject(new (require('../lib/protocol').FanError)('BLE_UNAVAILABLE')):run(...args);
+  };
+  await assert.rejects(set(h.pauseService,C.On,on));
+  for(let i=0;i<4;i++){
+    const before=attempts;t.mock.timers.tick(9999);assert.equal(attempts,before);
+    t.mock.timers.tick(1);for(let n=0;n<3;n++)await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(attempts,before+1);assert.equal(h.intent.kind,'pause');
+    assert.equal(a.context.pendingManual.on,on);assert.equal(h.fault,true);
+    assert.equal(r.writes.filter(w=>w.name==='manual').length,0);
+  }
+  assert.equal(logs.filter(s=>s.includes('request pending')).length,1);
+  assert.equal(logs.filter(s=>s.includes('unavailable:')).length,1);
+  offline=false;t.mock.timers.tick(10000);
+  for(let n=0;n<3;n++)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(await get(h.pauseService,C.On),on);
+  assert.equal(h.intent,null);assert.equal(a.context.pendingManual,undefined);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,1);
+  assert.equal(r.values.manual.toString('hex'),on?'0100005802':'0000000000');
+});
+test('lost Pause write confirmation adopts remaining timer; lost cancellation confirmation cannot restart Pause',async t=>{
+  const {r,h}=fixture(t);const manual=r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.manual);
+  const read=manual.readAsync;let n=0;
+  manual.readAsync=async()=>{if(++n===2)throw Error('response lost');return read();};
+  await assert.rejects(set(h.pauseService,C.On,true));assert.equal(h.intent.attempted,true);
+  r.values.manual.writeUInt16LE(579,3);manual.readAsync=read;
+  await h.attemptIntent(h.intent);
+  assert.equal(r.values.manual.readUInt16LE(3),579);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,1);
+  n=0;manual.readAsync=async()=>{if(++n===2)throw Error('cancel response lost');return read();};
+  await assert.rejects(set(h.pauseService,C.On,false));manual.readAsync=read;
+  await h.attemptIntent(h.intent);
+  assert.equal(r.values.manual.toString('hex'),'0000000000');
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,2);
+  assert.equal(h.intent,null);
+});
+test('Fan On cancels an unreachable Pause request; no stale retry can stop ventilation later',async t=>{
+  const {r,h,platform,a}=fixture(t);const run=platform.transport.run.bind(platform.transport);
+  platform.transport.run=async()=>{throw new (require('../lib/protocol').FanError)('FAN_NOT_FOUND');};
+  await assert.rejects(set(h.pauseService,C.On,true));const old=h.intent;
+  await assert.rejects(set(h.fanService,C.Active,1));assert.equal(a.context.pendingManual.kind,'automatic');
+  platform.transport.run=run;await h.attemptIntent(h.intent);await h.attemptIntent(old);
+  assert.equal(h.intent,null);assert.equal(await get(h.pauseService,C.On),false);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,0);
+});
+test('pending Pause cancellation survives restart and releases native Pause after reconnection',async t=>{
+  const {r,h,platform,a}=fixture(t);r.values.manual=Buffer.from('0100005802','hex');
+  const run=platform.transport.run.bind(platform.transport);
+  platform.transport.run=async()=>{throw new (require('../lib/protocol').FanError)('BLE_TIMEOUT');};
+  await assert.rejects(set(h.pauseService,C.On,false));assert.equal(a.context.pendingManual.on,false);h.close();
+  platform.transport.run=run;const restored=new FanAccessory(platform,homebridge,a,fan);t.after(()=>restored.close());
+  assert.equal(restored.intent.kind,'pause');assert.equal(restored.intent.on,false);
+  await restored.attemptIntent(restored.intent);
+  assert.equal(r.values.manual.toString('hex'),'0000000000');assert.equal(a.context.pendingManual,undefined);
 });

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.1
+
+- Set a conservative 2400 RPM default limit for temporary Boost and speed-slider requests, avoiding a rejected high-speed command that can put some fans into Pause. Explicit per-fan limits remain available.
+
 ## 2.5.0
 
 - Introduced **SvaraHome**, with a new name and house-and-fan identity.

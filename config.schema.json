@@ -41,8 +41,8 @@
               "minimum": 1000,
               "maximum": 2500,
               "multipleOf": 25,
-              "placeholder": "2500",
-              "description": "Optional. Limits Boost and speed-slider requests for this fan. Leave blank for 2500 RPM. Some older fans reject higher requests; use a speed confirmed to work on your fan. This does not change its permanent presets."
+              "placeholder": "2400",
+              "description": "Optional. Limits Boost and speed-slider requests for this fan. Leave blank for a conservative 2400 RPM limit. Some fans return Pause when they reject a higher target. Only raise this limit to a speed verified to work on your fan. This does not change its permanent presets or measured-speed display."
             }
           },
           "required": [

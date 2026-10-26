@@ -1,8 +1,16 @@
 # SvaraHome 2.5 validation
 
-## Current code evidence
+## 2.5.1 patch acceptance
 
-The runtime on the default branch is the tested beta.3 implementation (release commit 3f4066177868d7a651c8400803c3f490f21d471b). Later repository cleanup changes documentation, not runtime behaviour.
+The only runtime change from 2.5.0 is a conservative 2400 RPM default ceiling for temporary Boost and slider targets when no explicit per-fan limit is set. Explicit limits and measured RPM remain unchanged. Both tested fans accepted 2400 RPM; Kitchen and Wetroom returned Pause for 2450 RPM. This is a conservative compatibility default, not a universal firmware maximum.
+
+The current suite has 60 tests, including the default ceiling, explicit higher/lower limits, unchanged measured speed, numeric HomeKit writes and persistent Pause On/Off retries. Node 24.19.0 local acceptance passes with Homebridge 1.11.4 and 2.4.0. The publication gate also requires the Node 22/24 × Homebridge 1/2 workflow to pass native load, full/production audits, syntax, tests and package checks on the release commit.
+
+Live Pause/resume trials on 26 October passed on both fans; Kitchen recovered after a failed initial request without a repeated command. Both ended in automatic ventilation with no pending command. The existing Kitchen CO2 automation action achieved Boost after the speed correction. These hardware trials validate the 2400 RPM target and unchanged Pause/retry path; they do not constitute installing 2.5.1 on the Pi or observing a fresh natural CO2 trigger.
+
+## 2.5.0 baseline evidence
+
+The 2.5.0 runtime was the tested beta.3 implementation (release commit 3f4066177868d7a651c8400803c3f490f21d471b). Later repository cleanup changes documentation, not runtime behaviour.
 
 All 52 tests passed in each Node 22/24 × Homebridge 1/2 combination in [release CI run 40220445646](https://github.com/KernowekConsulting/homebridge-pax-calima/actions/runs/40220445646). The jobs also passed native installation/loading, full and production security audit gates, syntax and package checks.
 

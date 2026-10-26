@@ -8,7 +8,7 @@ SvaraHome brings local Bluetooth control for Pax Calima and Vent-Axia Svara fans
 
 [Website and support](https://homebridge.svarahome.kernowekconsulting.co.uk) · [Plugin on npm](https://www.npmjs.com/package/homebridge-pax-calima) · [Release notes](RELEASE_NOTES.md)
 
-**SvaraHome 2.5.0** brings timed Boost, Pause and confirmed fan feedback to Apple Home.
+**SvaraHome 2.5** brings timed Boost, Pause and confirmed fan feedback to Apple Home.
 
 ## What you get in Apple Home
 
@@ -84,7 +84,7 @@ The address and PIN are examples. Use your own fan’s details. A Bluetooth addr
 | `pauseMinutes` | Timed pause duration, including when the main Fan is turned off. Default: 10 minutes. |
 | `showBoostSwitch` | Show Boost Fan. Default: `true`. |
 | `showPauseSwitch` | Show the separate Pause Fan switch. Default: `false`; an explicitly enabled setting stays enabled. |
-| `fans[].maxManualRpm` | Optional per-fan limit for Boost and slider requests. Leave blank for the 2500 RPM target limit, or use a lower speed confirmed to work on your fan. This does not cap displayed measurement or alter permanent presets. |
+| `fans[].maxManualRpm` | Optional per-fan limit for Boost and slider requests. Leave blank for a conservative 2400 RPM target limit. Only raise it to a speed verified to work on your fan. This does not cap displayed measurement or alter permanent presets. |
 | `silentHoursStart` / `silentHoursEnd` | Optional saved quiet-hours schedule, in 24-hour format. Set both times, or leave both blank to retain the fan’s own schedule. |
 | `showSilentSwitch` | Show the saved schedule’s enable/disable switch. Default: `false`. |
 
@@ -100,7 +100,13 @@ Check its address and PIN privately in Plugin Config, Bluetooth range/adapter ac
 
 Temporary connection failures leave the newest manual request waiting for retry. A waiting request can start later when the fan reconnects. Turn the main Fan on to replace it with return-to-automatic. Siri may time out before recovery; that timeout does not cancel the waiting request.
 
+This also covers Pause On, Pause Off and returning to automatic ventilation. SvaraHome waits ten seconds after a failed attempt before retrying; requests share one Bluetooth queue, so delivery can take longer. Pending requests survive a child-bridge restart, and a newer manual command replaces the older request. A lost reply is checked against the running timer before resending, so recovery does not keep restarting the timer. Rejected credentials, invalid commands and mismatched fan readbacks stop retries and need correction.
+
 Tiles follow confirmed fan state. Background readings are retained only within a 45-second freshness limit; failed commands, stale data and invalid readings report communication faults. A rejected PIN stops unattended authentication retries: correct the saved details, restart the child bridge, then try again.
+
+If Boost fails with `COMMAND_NOT_CONFIRMED`, check the requested and received values in the log. Some fans return a timed Pause when they reject a high RPM target. Set that fan’s **Maximum Manual RPM** to a speed verified to work, then restart its child bridge. Clear any resulting Pause to return to automatic ventilation. A mismatched readback stops the request rather than repeatedly sending the rejected target.
+
+For sensor automations, select **Boost Fan → Turn On**. The main **Fan → On** returns to automatic ventilation. Home’s **Test This Automation** lets you check the saved action separately from a new sensor event.
 
 ## Upgrading to 2.5
 
