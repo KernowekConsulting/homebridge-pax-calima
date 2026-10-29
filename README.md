@@ -1,5 +1,7 @@
 # SvaraHome for Homebridge
 
+[![Verified by Homebridge](https://img.shields.io/badge/homebridge-verified-blueviolet?color=%23491F59&style=flat)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+
 <img src="assets/svarahome.png" alt="SvaraHome’s blue house and fan logo" width="160">
 
 Give the fan a boost. Pause it for a quiet moment. Let it return to normal when the time is up.
