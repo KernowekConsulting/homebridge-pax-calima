@@ -1,7 +1,7 @@
 {
   "name": "homebridge-pax-calima",
   "displayName": "SvaraHome",
-  "version": "2.6.0-beta.1",
+  "version": "2.6.0-beta.2",
   "description": "SvaraHome brings CO₂ Clear automation, timed Boost, Pause and local Bluetooth fan control into Apple Home.",
   "main": "index.js",
   "keywords": [

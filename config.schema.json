@@ -32,7 +32,7 @@
               "title": "Fan PIN",
               "type": "string",
               "pattern": "^(?:[0-9]{6}|[0-9]{8})$",
-              "description": "Enter this fan\u2019s six- or eight-digit PIN, including any leading zeroes. The PIN is stored in your Homebridge configuration.",
+              "description": "Enter this fan’s six- or eight-digit PIN, including any leading zeroes. The PIN is stored in your Homebridge configuration.",
               "secret": true
             },
             "maxManualRpm": {
@@ -42,7 +42,7 @@
               "maximum": 2500,
               "multipleOf": 25,
               "placeholder": "2400",
-              "description": "Optional. Limits Boost and speed-slider requests for this fan. Leave blank for a conservative 2400 RPM limit. Some fans return Pause when they reject a higher target. Only raise this limit to a speed verified to work on your fan. This does not change its permanent presets or measured-speed display."
+              "description": "Optional. Limits Boost, CO₂ Clear and speed-slider requests for this fan. Leave blank for a conservative 2400 RPM limit. Some fans return Pause when they reject a higher target. Only raise this limit to a speed verified to work on your fan. This does not change its permanent presets or measured-speed display."
             }
           },
           "required": [
@@ -97,44 +97,44 @@
         "title": "Quiet hours end",
         "type": "string",
         "placeholder": "06:00",
-        "description": "Use 24-hour time, such as 06:00. Leave both fields blank to retain the fan\u2019s existing schedule."
+        "description": "Use 24-hour time, such as 06:00. Leave both fields blank to retain the fan’s existing schedule."
       },
       "showSilentSwitch": {
         "title": "Show Silent Hours in Apple Home",
         "type": "boolean",
         "default": false,
-        "description": "Enable or disable the fan\u2019s saved quiet-hours schedule. This preserves its times; it does not start an immediate pause."
+        "description": "Enable or disable the fan’s saved quiet-hours schedule. This preserves its times; it does not start an immediate pause."
       },
       "co2ClearEnabled": {
         "title": "Show CO₂ Clear in Apple Home",
         "type": "boolean",
         "default": true,
-        "description": "Separate CO2 demand control, initially Off. Requires High AND Clear rules. We explicitly recommend Controller for HomeKit for the Clear rule; Apple Home\u2019s Netatmo editor offers only High. Uses the sensor\u2019s Detected Yes/No state (Netatmo: 1600 ppm). No direct sensor polling. See the beta guide."
+        "description": "Extra ventilation when CO₂ rises. Set up two automations: CO₂ high → CO₂ Clear On; CO₂ acceptable → CO₂ Clear Off. For Netatmo, use Controller for HomeKit to create the all-clear rule. CO₂ Clear Off returns control to the fan’s own ventilation, including its humidity response. The switch starts Off and waits for an automation or your command."
       },
       "co2ClearRpm": {
-        "title": "CO₂ Clear speed (RPM)",
+        "title": "Speed for extra ventilation (RPM)",
         "type": "integer",
         "minimum": 1000,
         "maximum": 2400,
         "multipleOf": 25,
         "default": 2400,
-        "description": "Also respects each fan\u2019s maximum requested speed. 2400 RPM is 96% on the 2500 RPM display scale."
+        "description": "2400 RPM is 96% on the Home speed scale. Any lower limit you have chosen for an individual fan still applies."
       },
       "co2ClearLeaseMinutes": {
-        "title": "CO₂ Clear fan timer (minutes)",
+        "title": "Fan timer if Homebridge disconnects (minutes)",
         "type": "integer",
         "minimum": 1,
         "maximum": 15,
         "default": 15,
-        "description": "Renewed while CO₂ Clear is On. If Homebridge stops, the last fan timer expires within this duration."
+        "description": "Normally leave this at 15 minutes. While CO₂ Clear is active, SvaraHome keeps this short fan timer topped up. If Homebridge stops, the timer expires and the fan returns to its own automatic ventilation. This is separate from the maximum running time above."
       },
       "co2ClearMaxMinutes": {
-        "title": "CO₂ Clear maximum session (minutes)",
+        "title": "Maximum time for extra ventilation (minutes)",
         "type": "integer",
         "minimum": 1,
         "maximum": 240,
         "default": 60,
-        "description": "Stops renewal and requests automatic ventilation at this limit, even if the sensor never sends Off. Repeated On does not extend it. Requires a fresh On to start again."
+        "description": "If the sensor’s all-clear never arrives, CO₂ Clear ends after this time and hands back to the fan’s own automatic ventilation. The default is one hour. Sending On again during a session does not extend it. After it ends or Homebridge restarts, a new On request is needed."
       }
     },
     "required": [
@@ -171,12 +171,20 @@
     },
     {
       "type": "section",
-      "title": "CO₂ Clear \u2014 CO2 automation",
+      "title": "CO₂ Clear — extra ventilation when CO₂ rises",
       "items": [
         "co2ClearEnabled",
         "co2ClearRpm",
-        "co2ClearLeaseMinutes",
         "co2ClearMaxMinutes"
+      ]
+    },
+    {
+      "type": "section",
+      "title": "CO₂ Clear — advanced timer",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "co2ClearLeaseMinutes"
       ]
     },
     {

@@ -233,7 +233,29 @@ test('CO2 Clear configuration validates consistently in GUI and runtime', () => 
   }
 });
 test('startup evidence identifies the exact runtime without user configuration or credentials', () => {
-  const identity = runtimeIdentity(); assert.match(identity, /version=2\.6\.0-beta\.1/);
+  const identity = runtimeIdentity(); assert.match(identity, /version=2\.6\.0-beta\.2/);
   for (const file of ['accessory.js', 'transport.js', 'co2-clear.js']) assert.ok(identity.includes(file + '='));
   assert.ok(!identity.includes(fan.mac) && !identity.includes(fan.pin));
+});
+
+for (const owned of [false, true]) test('CO2 Clear Off preserves running automatic ventilation ' + (owned ? 'after releasing its Boost' : 'without a prior air demand'), async t => {
+  const { h, r } = fixture(t);
+  // Model a motor still running under native control. The plugin does not
+  // decode a humidity reading or change native humidity settings.
+  r.values.status.writeUInt16LE(1500, 6);
+  if (owned) await set(h, true);
+  else await h.poll();
+  const before = r.writes.length;
+  await set(h, false);
+  const actions = r.writes.slice(before).filter(w => w.name !== 'auth');
+  assert.equal(actions.length, owned ? 1 : 0);
+  if (owned) {
+    assert.equal(actions[0].name, 'manual');
+    assert.equal(actions[0].value.toString('hex'), '0000000000');
+  }
+  assert.equal(h.last.manual.state, 'automatic');
+  assert.equal(h.last.status.rpm, 1500);
+  assert.equal(await h.fanService.getCharacteristic(C.Active).handleGetRequest(), 1);
+  assert.equal(await h.pauseService.getCharacteristic(C.On).handleGetRequest(), false);
+  assert.equal(await h.co2ClearService.getCharacteristic(C.On).handleGetRequest(), false);
 });

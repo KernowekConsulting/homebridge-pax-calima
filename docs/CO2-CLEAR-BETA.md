@@ -1,6 +1,16 @@
-# CO₂ Clear — 2.6.0-beta.1 trial
+# CO₂ Clear — 2.6.0-beta.2 trial
 
 CO₂ Clear is a separate third control alongside timed Boost Fan and Pause Fan. It maintains a bounded ventilation request between High and Clear events. The existing fan accessory identities, room assignments and ordinary controls are retained.
+
+## Before you start
+
+CO₂ Clear needs a pair of Home automations: **CO₂ high → CO₂ Clear On**, and **CO₂ acceptable → CO₂ Clear Off**. Check both rules before relying on it.
+
+**CO₂ Clear Off ends extra ventilation, not ventilation needed for humidity.** The fan returns to its own automatic control and may keep running. Never use main Fan Off or Pause as the all-clear action: those request a timed pause. CO₂ Clear has no humidity measurement and does not change the fan’s humidity settings.
+
+If the new control is missing in Controller after an upgrade, close and reopen Controller first. That refreshed the accessory list during this trial without changing the fan, pairing or Homebridge. A stale third-party list is not a reason to reset accessories.
+
+In Plugin Config, the main CO₂ Clear section holds visibility, speed and maximum running time. The shorter disconnect timer is under the collapsed advanced-timer section. Saved settings and existing Home automations are retained when upgrading from beta.1; do not create duplicate rules if the correct pair already exists.
 
 ## Required automation editor: decide before using this feature
 
@@ -18,7 +28,7 @@ This establishes an editable clear rule and a readable normal state, not deliver
 
 ## Rules to configure for the trial
 
-First install the beta and confirm both ordinary controls remain functional. Do not run an existing CO₂-to-Boost rule alongside the new CO₂ Clear rule: the newer ordinary Boost command would intentionally take priority and cancel CO₂ Clear renewal. Record the old rule so it can be restored for rollback.
+First install the beta and confirm both ordinary controls remain functional. Check the fan and room, verify the High scene contains only CO₂ Clear On and the Clear scene only CO₂ Clear Off, and confirm both rules are enabled without unintended time or presence restrictions. Do not run an existing CO₂-to-Boost rule alongside the new CO₂ Clear rule: the newer ordinary Boost command would intentionally take priority and cancel CO₂ Clear renewal. Record the old rule so it can be restored for rollback.
 
 For **one CO₂ sensor and one fan**:
 
@@ -59,8 +69,9 @@ These are trial steps, not claims of tests already performed on live fans:
 2. Install the beta only on SvaraHome and restart only its child bridge when authorised. Check startup version/source fingerprints, both connections, unchanged Boost/Pause service identities, CO₂ Clear initially Off and no old demand re-armed.
 3. For a shorter observation, set a one-minute lease and three-minute maximum session, retain the verified RPM ceiling, then manually send CO₂ Clear On. Confirm the initial native timer, at least two renewals beyond its first expiry, Off release and return to automatic via readback. Restore the intended 15/60-minute settings afterwards with the agreed child restart.
 4. Test manual Pause during demand, then a delayed Clear: Pause must remain in force. Verify ordinary Boost and Fan On still work and that the old air renewal cannot reappear.
-5. Correlate a natural High transition with receipt and confirmed fan timer. Then correlate the actual Detected Yes→No transition with CO₂ Clear Off receipt and confirmed release. Home's Test Automation action proves only that rule's action path, not the real sensor transition. Do not manufacture CO₂ exposure or falsify readings.
-6. Observe source loss/missing Clear and the maximum-session cutoff, plus a bounded restart check. Do not disrupt the live Home hub, Pi radio or other plugins to manufacture a failure without a separate agreed test.
+5. With a native humidity demand present, verify that CO₂ Clear Off releases only its own extra ventilation and leaves automatic humidity ventilation available. Readback returning to automatic is the check; a stopped motor is not required. If CO₂ Clear has never been On, an Off should not send a fan command.
+6. Correlate a natural High transition with receipt and confirmed fan timer. Then correlate the actual Detected Yes→No transition with CO₂ Clear Off receipt and confirmed release. Home's Test Automation action proves only that rule's action path, not the real sensor transition. Do not manufacture CO₂ exposure or falsify readings.
+7. Observe source loss/missing Clear and the maximum-session cutoff, plus a bounded restart check. Do not disrupt the live Home hub, Pi radio or other plugins to manufacture a failure without a separate agreed test.
 
 The owner's Netatmo network instability remains an upstream fault. This beta does not repair it or the underlying Bluetooth discovery failures. The existing patient retries remain; no unproven wake delay, adapter reset, new sensor API or changed PIN handling is included.
 

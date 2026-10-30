@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.6.0-beta.2
+
+- Made CO₂ Clear setup easier to follow, with a checklist for the two automations and help replacing an existing CO₂-to-Boost rule.
+- Clarified that ending CO₂ Clear hands back to the fan’s own ventilation, including its humidity response.
+- Brought speed and maximum running time together in Plugin Config, with the shorter fan timer under advanced settings.
+- Updated the included release notes to match SvaraHome’s everyday voice.
+- Kept existing controls, settings and beta.1 automations in place.
+
 ## 2.6.0-beta.1
 
 - Added **CO₂ Clear**: extra ventilation when your sensor reports high CO₂, with a return to normal when it reports an acceptable level.
