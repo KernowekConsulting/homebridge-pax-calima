@@ -2,10 +2,11 @@
 
 ## 2.6.0-beta.1
 
-- Added **CO₂ Clear** as a separate CO₂ demand control, with renewable finite fan timers, a maximum session limit, manual priority and no automatic renewal after restart.
-- Added command receipt/readback logs, Bluetooth stage timings and startup source fingerprints.
-- Added a beta trial guide that explicitly recommends Controller for HomeKit for CO₂-clear rules; Apple Home alone does not expose the Netatmo clear trigger.
-- Retained existing timed Boost, Pause, accessory identities and verified speed ceilings.
+- Added **CO₂ Clear**: extra ventilation when your sensor reports high CO₂, with a return to normal when it reports an acceptable level.
+- Kept you in control: using Fan, Boost or Pause takes priority over CO₂ Clear.
+- Added a choice of speed and maximum running time, with a one-hour default if the sensor's all-clear never arrives.
+- Added a setup guide for the two Home automations, recommending Controller for HomeKit for Netatmo's all-clear rule.
+- Added more detail to support logs to help investigate interrupted fan communication.
 
 ## 2.5.2
 

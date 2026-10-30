@@ -26,3 +26,9 @@ Chosen by the owner on 30 October 2026 for the new third control. Use **CO₂ Cl
 Supporting line: **Extra ventilation when CO₂ rises.**
 
 Keep the existing website's short, familiar, warm wording. Describe the action and benefit plainly; avoid forced wordplay, purification claims or promises of a health outcome. Boost Fan and Pause Fan retain their names and ordinary timed behaviour.
+
+## Release writing — following GivHome
+
+SvaraHome mirrors GivHome's public voice. Lead with the everyday benefit, then explain what happens in the home and what the person can choose. Use warm, familiar, direct prose, with headings that help tell that story. The GivHome 4.1.0 release notes are the reference: “More control when you need it. More room for tomorrow’s sunshine.”
+
+Keep essential setup requirements and behaviour limits clear in ordinary words. Put command details, state-machine terminology, timer renewal mechanics, source fingerprints, CI matrices, test counts, hashes, downloadable-archive terminology and recovery procedures in technical documentation, not customer release notes. Link to a guide using a descriptive label and an absolute public URL so it also works in Homebridge. Never append an engineering validation section to the published release body.

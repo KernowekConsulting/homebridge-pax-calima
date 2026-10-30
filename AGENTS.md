@@ -23,3 +23,7 @@ The owner treats 2.4.5 as deprecated and wants the public guide to focus on 2.5.
 For full 2.5.0, RELEASE_NOTES.md and CHANGELOG.md must communicate only added value, changes since 2.4.5 and essential upgrade information. No beta discussion, internal workings, investigations, test chronology or release-process narrative. Keep development evidence in docs/ and prior prerelease tags/releases. The working release notes are the concise 2.5 copy; the changelog remains explicitly Unreleased until publication.
 
 The owner specifically requires npm's default public README to lose the false legacy feature list at stable 2.5.0 publication. Check the exact tarball's README before publication and the rendered https://www.npmjs.com/package/homebridge-pax-calima page afterwards. A cleaned GitHub README alone is not completion. Follow the explicit obsolete-claims checks in docs/STABLE-PROMOTION.md.
+
+## Public voice
+
+SvaraHome mirrors GivHome. Follow docs/BRANDING.md for customer release writing: everyday benefit first, familiar language, practical choices and essential setup. Keep CI results, hashes, timer mechanics, diagnostic internals and recovery procedures in technical documentation rather than RELEASE_NOTES.md, CHANGELOG.md or the GitHub release body. Use absolute public guide URLs in release notes so Homebridge displays working links.

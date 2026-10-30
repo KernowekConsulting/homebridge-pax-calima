@@ -1,11 +1,25 @@
-# SvaraHome 2.6.0-beta.1
+# SvaraHome 2.6.0-beta.1 — CO₂ Clear
 
-**Trial release — keep stable installations on 2.5.2.**
+Extra ventilation when CO₂ rises.
 
-- **CO₂ Clear** is a third control alongside timed Boost and Pause. A High/On demand renews bounded fan timers; Clear/Off releases its override. Manual control takes priority.
-- Default output: 2400 RPM/96%, respecting lower per-fan limits; 15-minute fan timers and a 60-minute maximum session. Restart does not resume old demand.
-- Improved command/Bluetooth diagnostics and startup source fingerprints help identify the running code and failed stages.
+Cooking, company and everyday life can leave a room in need of more fresh air. CO₂ Clear brings your CO₂ sensor and fan together in Apple Home, so extra ventilation can carry on for longer when the room needs it.
 
-**Setup dependency:** CO₂-clear rules require a capable HomeKit automation editor. We explicitly recommend Controller for HomeKit; Apple Home's Netatmo CO₂ editor exposes only High. The beta uses the Netatmo's built-in 1600 ppm **Carbon dioxide Detected Yes/No** rules. The plugin does not poll sensors or Apple Home. See [beta setup and rollback](docs/CO2-CLEAR-BETA.md).
+## Give the room the time it needs
 
-Existing Boost/Pause behaviour and accessory identities are preserved. This beta has simulated state-machine and HomeKit tests; real sustained-high, clear, sensor-loss and restart behaviour remains to be validated on the owner's installation. No claim that the intermittent Bluetooth or Netatmo network faults are resolved.
+A timed Boost is useful when you know how long you want the fan to run. CO₂ Clear adds another choice: start extra ventilation when your sensor reports high CO₂, then return to normal when it reports an acceptable level.
+
+Two Home automations connect the sensor to the new CO₂ Clear control: one to turn it on, another to turn it off. Once those are in place, SvaraHome keeps the fan going between the two.
+
+## You stay in control
+
+Need a quiet moment? Use Pause. Want to take over? Use the fan or Boost controls as usual. Your choice takes priority.
+
+CO₂ Clear runs at 96% by default, within any lower limit you have chosen for your fan. It has a one-hour limit in case the sensor's all-clear never arrives. You can choose the speed and maximum running time in Plugin Config. After a Homebridge restart, it waits for a new request.
+
+## Setting up your first CO₂ Clear automation
+
+For this beta, we recommend **Controller for HomeKit** to create the all-clear automation. It is an additional app: Apple Home's own editor offers the Netatmo high-CO₂ trigger, but not the matching all-clear trigger. The beta uses Netatmo's existing CO₂ warning level.
+
+The [CO₂ Clear setup guide](https://github.com/KernowekConsulting/homebridge-pax-calima/blob/v2.6.0-beta.1/docs/CO2-CLEAR-BETA.md) walks through both automations. Start with one sensor and one fan.
+
+This is the first CO₂ Clear beta. We would like to learn how it works through everyday rises and falls in CO₂ before a wider release. Choose **2.6.0-beta.1** in Homebridge to try it; **2.5.2** remains the regular release.
