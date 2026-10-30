@@ -26,6 +26,58 @@ async function get(service,type) { return service.getCharacteristic(type).handle
 async function set(service,type,value) { return service.getCharacteristic(type).handleSetRequest(value); }
 const C=hap.Characteristic,S=hap.Service;
 
+test('command evidence logs safe failure stage once per attempt and background evidence is sampled',async t=>{
+  const {r,h,logs}=fixture(t);const characteristic=r.chars.find(c=>c.uuid===require('../lib/protocol').UUID.mode);
+  characteristic.readAsync=async()=>{throw Error('backend secret '+fan.pin+' '+fan.mac);};
+  await assert.rejects(set(h.boostService,C.On,true));
+  let traces=logs.filter(s=>s.includes(': Bluetooth attempt '));assert.equal(traces.length,1);
+  assert.match(traces[0],/operation=command; code=BLE_OPERATION_FAILED; stage=read-mode;/);
+  await h.attemptIntent(h.intent).catch(()=>{});
+  traces=logs.filter(s=>s.includes(': Bluetooth attempt '));assert.equal(traces.length,2);
+  await h.poll();await h.poll();assert.equal(logs.filter(s=>s.includes(': Bluetooth attempt ')).length,2);
+  r.peripheral.connectAsync=async()=>{throw Error('another backend secret');};
+  await h.poll();traces=logs.filter(s=>s.includes(': Bluetooth attempt '));assert.equal(traces.length,3);
+  assert.match(traces[2],/operation=poll; code=BLE_OPERATION_FAILED; stage=connect;/);
+  assert.ok(logs.every(s=>!s.includes(fan.pin)&&!s.includes(fan.mac)&&!s.includes('backend secret')));
+});
+
+test('faulted Boost accepts a numeric HomeKit action and traces eventual delivery after radio recovery',async t=>{
+  const {r,h,platform,logs}=fixture(t,{boostRpm:2450});
+  t.mock.timers.enable({apis:['setTimeout']});
+  const run=platform.transport.run.bind(platform.transport);let offline=true;
+  platform.transport.run=(...args)=>offline?Promise.reject(new (require('../lib/protocol').FanError)('BLE_UNAVAILABLE')):run(...args);
+  const characteristic=h.boostService.getCharacteristic(C.On);
+  assert.equal(h.fault,true);
+  await assert.rejects(characteristic.handleSetRequest(1,{}));
+  for(let i=0;i<3;i++){
+    t.mock.timers.tick(10000);
+    for(let n=0;n<3;n++)await new Promise(resolve=>setImmediate(resolve));
+  }
+  assert.equal(logs.filter(line=>line.includes('boost On request received.')).length,1);
+  assert.equal(logs.filter(line=>line.includes('request pending')).length,1);
+  assert.equal(logs.some(line=>line.includes('request confirmed;')),false);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,0);
+  offline=false;t.mock.timers.tick(10000);
+  for(let n=0;n<3;n++)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(await get(h.boostService,C.On),true);
+  assert.equal(logs.filter(line=>line.includes('boost On request confirmed; fan reports boost 2400 RPM/600s.')).length,1);
+  assert.equal(r.writes.filter(w=>w.name==='manual').length,1);
+  assert.ok(logs.every(line=>!line.includes(fan.pin)&&!line.includes(fan.mac)));
+});
+
+test('command trace distinguishes replacement from terminal rejection and never claims confirmation',async t=>{
+  const {r,h,platform,logs}=fixture(t);
+  const run=platform.transport.run.bind(platform.transport);
+  platform.transport.run=()=>Promise.reject(new (require('../lib/protocol').FanError)('BLE_UNAVAILABLE'));
+  await assert.rejects(set(h.boostService,C.On,true));
+  r.values.confirmation=Buffer.from([0]);platform.transport.run=run;
+  await assert.rejects(set(h.pauseService,C.On,true));
+  assert.ok(logs.some(line=>line.includes('boost On request replaced by a newer command.')));
+  assert.ok(logs.some(line=>line.includes('pause On request stopped: AUTH_REJECTED.')));
+  assert.equal(logs.some(line=>line.includes('request confirmed;')),false);
+  assert.equal(h.intent,null);
+});
+
 test('default controls are Fan and Boost Fan; an explicitly enabled Pause Fan retains its service identity',async t=>{
   const {h,a,platform}=fixture(t,{showPauseSwitch:undefined});
   assert.equal(h.pauseService,null);assert.ok(h.fanService);assert.ok(h.boostService);
@@ -40,7 +92,7 @@ test('default controls are Fan and Boost Fan; an explicitly enabled Pause Fan re
   assert.equal(restored.boostService,boost);assert.equal(restored.pauseService,pause);
   assert.equal(boost.getCharacteristic(C.ConfiguredName).value,'Boost Fan');
   assert.equal(pause.getCharacteristic(C.ConfiguredName).value,'Pause Fan');
-  assert.equal(a.services.filter(s=>s.UUID===S.Switch.UUID).length,2);
+  assert.equal(a.services.filter(s=>s.UUID===S.Switch.UUID).length,3);
 });
 test('main Fan off starts a timed Pause without a Pause tile; Fan on clears either override without changing presets',async t=>{
   const {r,h}=fixture(t,{showPauseSwitch:undefined,pauseMinutes:3});await h.poll();
@@ -167,7 +219,7 @@ test('legacy services migrate with stable fan UUID/subtype and no duplicates',as
   const next=new FanAccessory(platform,homebridge,a,fan);t.after(()=>next.close());
   assert.equal(a.UUID,uuid);assert.equal(next.fanService,original);
   for(const type of [S.StatelessProgrammableSwitch,S.TemperatureSensor,S.HumiditySensor,S.LightSensor])assert.equal(a.getService(type),undefined);
-  assert.equal(a.services.filter(s=>s.UUID===S.Switch.UUID).length,2);
+  assert.equal(a.services.filter(s=>s.UUID===S.Switch.UUID).length,3);
   assert.equal(a.getServiceById(S.Switch,'boost'),next.boostService);
 });
 test('unconfigured platform has no Bluetooth work; cached fan remains faulted',async t=>{

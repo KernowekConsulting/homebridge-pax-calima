@@ -1,8 +1,8 @@
 {
   "name": "homebridge-pax-calima",
   "displayName": "SvaraHome",
-  "version": "2.5.2",
-  "description": "SvaraHome brings timed Boost, Pause and local Bluetooth control for Pax Calima and Vent-Axia Svara fans into Apple Home.",
+  "version": "2.6.0-beta.1",
+  "description": "SvaraHome brings CO₂ Clear automation, timed Boost, Pause and local Bluetooth fan control into Apple Home.",
   "main": "index.js",
   "keywords": [
     "homebridge-plugin",
@@ -16,7 +16,9 @@
     "extractor",
     "bathroom",
     "supports-hap",
-    "svarahome"
+    "svarahome",
+    "co2",
+    "ventilation"
   ],
   "engines": {
     "homebridge": "^1.8.0 || ^2.0.0",
@@ -33,7 +35,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "node --test test/*.test.js",
-    "check": "node --check index.js && node --check lib/accessory.js && node --check lib/platform.js && node --check lib/protocol.js && node --check lib/transport.js",
+    "check": "node --check index.js && node --check lib/accessory.js && node --check lib/platform.js && node --check lib/protocol.js && node --check lib/transport.js && node --check lib/co2-clear.js",
     "audit:release": "npm audit --audit-level=high && npm audit --omit=dev --audit-level=high",
     "check:native": "node scripts/check-native.cjs"
   },
@@ -57,7 +59,8 @@
     "scripts/check-native.cjs",
     "docs/BETA1-LIVE-DIAGNOSTIC.md",
     "docs/pi-live-control-evidence-20261025.jsonl",
-    "docs/STABLE-PROMOTION.md"
+    "docs/STABLE-PROMOTION.md",
+    "docs/CO2-CLEAR-BETA.md"
   ],
   "dependencies": {
     "@stoprocent/noble": "2.8.0"

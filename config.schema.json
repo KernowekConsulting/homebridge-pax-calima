@@ -104,6 +104,37 @@
         "type": "boolean",
         "default": false,
         "description": "Enable or disable the fan\u2019s saved quiet-hours schedule. This preserves its times; it does not start an immediate pause."
+      },
+      "co2ClearEnabled": {
+        "title": "Show CO₂ Clear in Apple Home",
+        "type": "boolean",
+        "default": true,
+        "description": "Separate CO2 demand control, initially Off. Requires High AND Clear rules. We explicitly recommend Controller for HomeKit for the Clear rule; Apple Home\u2019s Netatmo editor offers only High. Uses the sensor\u2019s Detected Yes/No state (Netatmo: 1600 ppm). No direct sensor polling. See the beta guide."
+      },
+      "co2ClearRpm": {
+        "title": "CO₂ Clear speed (RPM)",
+        "type": "integer",
+        "minimum": 1000,
+        "maximum": 2400,
+        "multipleOf": 25,
+        "default": 2400,
+        "description": "Also respects each fan\u2019s maximum requested speed. 2400 RPM is 96% on the 2500 RPM display scale."
+      },
+      "co2ClearLeaseMinutes": {
+        "title": "CO₂ Clear fan timer (minutes)",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 15,
+        "default": 15,
+        "description": "Renewed while CO₂ Clear is On. If Homebridge stops, the last fan timer expires within this duration."
+      },
+      "co2ClearMaxMinutes": {
+        "title": "CO₂ Clear maximum session (minutes)",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 240,
+        "default": 60,
+        "description": "Stops renewal and requests automatic ventilation at this limit, even if the sensor never sends Off. Repeated On does not extend it. Requires a fresh On to start again."
       }
     },
     "required": [
@@ -136,6 +167,16 @@
         "boostRpm",
         "showPauseSwitch",
         "pauseMinutes"
+      ]
+    },
+    {
+      "type": "section",
+      "title": "CO₂ Clear \u2014 CO2 automation",
+      "items": [
+        "co2ClearEnabled",
+        "co2ClearRpm",
+        "co2ClearLeaseMinutes",
+        "co2ClearMaxMinutes"
       ]
     },
     {

@@ -1,8 +1,59 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
-const { Transport } = require('../lib/transport');
+const { Transport, failureDetails } = require('../lib/transport');
 const { fakeRadio } = require('./helpers');
 const mac='58:2b:db:11:22:33', pin='00123456';
+const { UUID, publicError } = require('../lib/protocol');
+for (const stage of ['connect', 'discover-services', 'discover-characteristics', 'write-auth',
+  'read-confirmation', 'read-mode', 'write-manual', 'read-manual']) {
+  test('failure evidence identifies '+stage+' without exposing backend secrets or changing the error',async()=>{
+    const r=fakeRadio(),transport=new Transport(r.noble,50,0);
+    const error=Error('private '+pin+' '+mac+' payload');
+    const reject=async()=>{throw error;};
+    if(stage==='connect')r.peripheral.connectAsync=reject;
+    else if(stage==='discover-services')r.peripheral.discoverServicesAsync=reject;
+    else if(stage==='discover-characteristics')r.peripheral.discoverServicesAsync=async()=>[{discoverCharacteristicsAsync:reject}];
+    else {
+      const [operation,name]=stage.split('-');
+      r.chars.find(c=>c.uuid===UUID[name])[operation+'Async']=reject;
+    }
+    await assert.rejects(transport.run(mac,pin,async io=>{
+      await io.read('mode');await io.write('manual',Buffer.alloc(5));await io.read('manual');
+    }),actual=>actual===error);
+    const evidence=failureDetails(error);
+    assert.equal(evidence.stage,stage);assert.equal(evidence.attempt,1);
+    assert.equal(publicError(error),'BLE_OPERATION_FAILED');
+    assert.ok(Number.isInteger(evidence.stageMs)&&evidence.stageMs>=0);
+    assert.ok(evidence.sessionMs>=evidence.stageMs);assert.ok(evidence.queueMs>=0);
+    if(stage==='read-manual')assert.equal(evidence.completed,'write-manual');
+    const text=JSON.stringify(evidence);assert.ok(!text.includes(pin)&&!text.includes(mac)&&!text.includes('payload'));
+    assert.ok(Object.isFrozen(evidence));transport.close();
+  });
+}
+test('timeout and explicit authentication rejection retain distinct codes and stages',async()=>{
+  const r=fakeRadio(),transport=new Transport(r.noble,5,0);
+  const confirmation=r.chars.find(c=>c.uuid===UUID.confirmation),read=confirmation.readAsync;
+  confirmation.readAsync=()=>new Promise(()=>{});
+  await assert.rejects(transport.run(mac,pin,async()=>{}),error=>{
+    assert.equal(publicError(error),'BLE_TIMEOUT');assert.equal(failureDetails(error).stage,'read-confirmation');return true;
+  });
+  confirmation.readAsync=read;r.values.confirmation=Buffer.from([0]);
+  await assert.rejects(transport.run(mac,pin,async()=>{}),error=>{
+    assert.equal(publicError(error),'AUTH_REJECTED');assert.equal(failureDetails(error).stage,'authenticate');return true;
+  });transport.close();
+});
+test('queue delay is separate from session timing and reused backend errors get fresh attempt evidence',async()=>{
+  const r=fakeRadio(),transport=new Transport(r.noble,50,0),error=Error('private backend');
+  let release;const block=new Promise(resolve=>{release=resolve;});
+  const first=transport.run(mac,pin,async()=>block);
+  r.chars.find(c=>c.uuid===UUID.mode).readAsync=async()=>{throw error;};
+  const second=transport.run(mac,pin,io=>io.read('mode'));
+  const checked=assert.rejects(second,actual=>actual===error);
+  await new Promise(resolve=>setTimeout(resolve,20));release();await first;await checked;
+  const evidence=failureDetails(error);assert.ok(evidence.queueMs>=10);assert.equal(evidence.attempt,2);
+  await assert.rejects(transport.run(mac,pin,io=>io.read('mode')));
+  assert.equal(failureDetails(error).attempt,3);assert.notEqual(failureDetails(error),evidence);transport.close();
+});
 test('queue serialises sessions, acknowledges auth writes and disconnects every time', async () => {
   const radio=fakeRadio(), t=new Transport(radio.noble,50), order=[];
   await Promise.all([t.run(mac,pin,async()=>{order.push('a');await new Promise(r=>setTimeout(r,5));order.push('b');}),

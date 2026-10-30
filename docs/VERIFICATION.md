@@ -1,3 +1,9 @@
+# Current verification status
+
+Homebridge verified SvaraHome on 28 October 2026 after checks against 2.5.1. See the [maintainer confirmation](https://github.com/homebridge/plugins/issues/1302#issuecomment-6480171817) and [official register](https://github.com/homebridge/plugins/blob/master/verified-plugins.json). Stable 2.5.2 records that status. This beta adds unvalidated live behaviour; verification is not a guarantee of a particular automation or Bluetooth connection.
+
+The dated readiness review below is retained as historical evidence; references there to pending verification are superseded by the confirmation above.
+
 # Homebridge verification readiness
 
 Reviewed 26 October 2026 against the current requirements and request forms. **Stable 2.5.0 is published and [verification request #1302](https://github.com/homebridge/plugins/issues/1302) has been submitted. Verification has not yet been granted.**

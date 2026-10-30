@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.0-beta.1
+
+- Added **CO₂ Clear** as a separate CO₂ demand control, with renewable finite fan timers, a maximum session limit, manual priority and no automatic renewal after restart.
+- Added command receipt/readback logs, Bluetooth stage timings and startup source fingerprints.
+- Added a beta trial guide that explicitly recommends Controller for HomeKit for CO₂-clear rules; Apple Home alone does not expose the Netatmo clear trigger.
+- Retained existing timed Boost, Pause, accessory identities and verified speed ceilings.
+
 ## 2.5.2
 
 - Now verified by Homebridge.

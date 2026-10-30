@@ -18,3 +18,11 @@ Method: built-in image generation with the three supplied references, followed b
 ## Final generation prompt
 
 Use case: logo-brand. Create the polished final SvaraHome application/plugin icon, square 1024x1024 PNG, no text. Image 1 is the successful GivHome family style reference; images 2 and 3 are the SvaraHome drafts to improve. Retain the clear turquoise three-bladed fan on its white circular face from images 2/3 and the brand blue #026AB3. Crucially redraw the house to achieve the depth and architectural quality of image 1: three nested translucent house silhouettes with actual horizontal roof eaves and vertical walls, coherent proportions, beautiful subtle overlapping blue/aqua glass layers, roof peak centred, fine inset highlights and restrained shadows. Not nested pentagons. Match the GivHome rounded-square icon family and confident balanced geometry, translated into cool blue rather than green. The house should fit comfortably inside the icon with generous even breathing room, enclosing a smaller crisply drawn circular fan in its lower centre; house peak is visible above fan, walls and baseline readable around it. Strong legibility at 100px, refined simple surfaces, no excessive 3D render, no glossy bulbous plastic, no gratuitous ornament. Background colour exactly #026AB3 across the full square canvas, with a very subtle rounded-square inset tile edge like GivHome, no white exterior corners, no photographic surroundings, no wordmark, no letters, no watermark. One finished icon only.
+
+## CO₂ Clear
+
+Chosen by the owner on 30 October 2026 for the new third control. Use **CO₂ Clear**, with a space and the subscript₂, in Home control labels, settings, headings and release writing. Use ASCII `CO2 Clear` in diagnostic logs and `co2Clear` for configuration keys. The fan accessory, npm identifier and SvaraHome name remain unchanged.
+
+Supporting line: **Extra ventilation when CO₂ rises.**
+
+Keep the existing website's short, familiar, warm wording. Describe the action and benefit plainly; avoid forced wordplay, purification claims or promises of a health outcome. Boost Fan and Pause Fan retain their names and ordinary timed behaviour.

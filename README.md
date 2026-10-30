@@ -10,7 +10,7 @@ SvaraHome brings local Bluetooth control for Pax Calima and Vent-Axia Svara fans
 
 [Website and support](https://homebridge.svarahome.kernowekconsulting.co.uk) · [Plugin on npm](https://www.npmjs.com/package/homebridge-pax-calima) · [Release notes](RELEASE_NOTES.md)
 
-**SvaraHome 2.5** brings timed Boost, Pause and confirmed fan feedback to Apple Home.
+**Trial build: SvaraHome 2.6.0-beta.1.** Adds optional **CO₂ Clear**, alongside the existing timed Boost and Pause controls. Stable users should stay on `latest` (2.5.2); this beta is for a supervised trial. See the [CO₂ Clear beta guide](docs/CO2-CLEAR-BETA.md).
 
 ## What you get in Apple Home
 
@@ -18,6 +18,7 @@ SvaraHome brings local Bluetooth control for Pax Calima and Vent-Axia Svara fans
 | --- | --- |
 | **Fan** | Shows measured speed as a percentage. Off starts a timed pause; On returns either Pause or Boost to automatic ventilation. |
 | **Boost Fan** | Runs the fan at your chosen speed for a limited time. Turn it off to return sooner. Shown by default. |
+| **CO₂ Clear** | Separate CO₂ demand switch, shown by default and initially Off. Renews bounded ventilation until cleared or its maximum session ends. Requires both High and Clear automations; see setup below. |
 | **Pause Fan** | Optional separate pause switch for status and automations. Hidden by default unless explicitly enabled. |
 | **Silent Hours** | Optional switch for the fan’s saved quiet-hours schedule. It does not start an immediate pause. |
 
@@ -28,6 +29,18 @@ Boost and Pause share one temporary override. Starting either replaces the other
 The displayed speed comes from measured RPM. It can differ from the requested percentage while the motor settles. The speed slider starts a temporary session using the Boost duration; it leaves persistent ventilation speed presets in place. A zero-speed request starts the timed pause. Low nonzero requests use the supported minimum of 1000 RPM.
 
 Temperature, humidity and light are **not exposed as ambient sensors**. SvaraHome does not provide a shower-detection sensor or infer room conditions from fan speed.
+
+## CO₂ Clear: read before enabling an automation
+
+CO₂ Clear is a third control. **It does not read your sensors, poll Apple Home, or infer CO₂ from motor speed.** With no automation sending On, it remains inactive. Ordinary timed Boost and Pause do not require a sensor or an additional app.
+
+For this beta we explicitly recommend **Controller for HomeKit** to configure the CO₂-clear rule. Apple Home's Netatmo CO₂ editor offers only the high warning; it does not offer a CO₂-clear trigger. Controller is an additional app and may require its own licence. Customers should check that dependency before choosing CO₂ Clear. Use regular HomeKit automations in Controller, not its separate Workflows/Controller Hub feature.
+
+The beta uses the Netatmo's existing **Carbon dioxide Detected** flag: **Yes → CO₂ Clear On**, **No → CO₂ Clear Off**. Netatmo documents its built-in high threshold as above **1600 ppm**. No custom numeric threshold is introduced. Use **Carbon dioxide Detected**, not the separate Air Quality measurement (which combines several measurements). A real rising/falling test is still required; selecting a trigger in an editor alone is not end-to-end validation.
+
+Default CO₂ Clear output is 2400 RPM (96% on the 2500 RPM scale), also capped by each fan's configured limit. It renews a 15-minute fan timer halfway through its verified remaining time, with a 60-minute maximum demand session. Repeated On does not extend that session. Clear requests return to automatic ventilation; manual Fan, Boost, Pause or slider actions cancel CO₂ Clear renewal and take priority. Restarting Homebridge does not resume a previous High; any existing finite fan timer can run to expiry.
+
+**A missing Clear is not proof that CO₂ remains high.** The maximum session bounds that uncertainty. At the limit CO₂ Clear turns Off and requests automatic ventilation even if CO₂ is still high; it does not claim the air is acceptable. A new explicit On is needed to start another session. In this MVP link only one CO₂ source to each fan. See the [setup, limitations, trial checks and rollback guide](docs/CO2-CLEAR-BETA.md).
 
 ## Use your own words
 
@@ -85,6 +98,10 @@ The address and PIN are examples. Use your own fan’s details. A Bluetooth addr
 | `boostMinutes` / `boostRpm` | Temporary Boost duration and requested speed. Defaults: 10 minutes and 2000 RPM. |
 | `pauseMinutes` | Timed pause duration, including when the main Fan is turned off. Default: 10 minutes. |
 | `showBoostSwitch` | Show Boost Fan. Default: `true`. |
+| `co2ClearEnabled` | Show the separate CO₂ Clear demand control. Default: `true`; always initially Off. |
+| `co2ClearRpm` | Requested CO₂ Clear speed; default 2400 RPM, range 1000–2400 in 25 RPM steps, also limited by the fan ceiling. |
+| `co2ClearLeaseMinutes` | Finite fan timer renewed while demand is active; default 15, range 1–15 minutes. |
+| `co2ClearMaxMinutes` | Maximum demand session; default 60, range 1–240 minutes. Repeated On cannot extend it. |
 | `showPauseSwitch` | Show the separate Pause Fan switch. Default: `false`; an explicitly enabled setting stays enabled. |
 | `fans[].maxManualRpm` | Optional per-fan limit for Boost and slider requests. Leave blank for a conservative 2400 RPM target limit. Only raise it to a speed verified to work on your fan. This does not cap displayed measurement or alter permanent presets. |
 | `silentHoursStart` / `silentHoursEnd` | Optional saved quiet-hours schedule, in 24-hour format. Set both times, or leave both blank to retain the fan’s own schedule. |
@@ -118,6 +135,6 @@ An explicitly enabled Pause switch remains enabled after upgrading. Turn off **S
 
 ## About the project
 
-SvaraHome is independent of Apple, Homebridge, Pax and Vent-Axia. **Homebridge verification has not yet been granted.** Homebridge controls the verification badge and central plugin icon; bundling the SvaraHome artwork does not grant either.
+SvaraHome is independent of Apple, Homebridge, Pax and Vent-Axia. **Homebridge verification was granted on 28 October 2026.** Homebridge controls the verification badge and central plugin icon; bundling the SvaraHome artwork does not grant either.
 
 For help, start with the [SvaraHome website](https://homebridge.svarahome.kernowekconsulting.co.uk) or [GitHub issues](https://github.com/KernowekConsulting/homebridge-pax-calima/issues). [Validation evidence](docs/VALIDATION.md) and [verification preparation](docs/VERIFICATION.md) are available separately.
